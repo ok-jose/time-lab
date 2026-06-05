@@ -1,0 +1,41 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/add/add",
+    "pages/detail/detail",
+    "pages/settings/settings",
+    "pages/privacy/privacy"
+  ],
+  "window": {
+    "navigationBarBackgroundColor": "#f5f4f8",
+    "navigationBarTitleText": "用不过期",
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#f5f4f8"
+  },
+  "tabBar": {
+    "color": "#8b8a94",
+    "selectedColor": "#1a1a2e",
+    "backgroundColor": "#f5f4f8",
+    "borderStyle": "white",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "物品",
+        "iconPath": "images/tab-items.png",
+        "selectedIconPath": "images/tab-items-active.png"
+      },
+      {
+        "pagePath": "pages/settings/settings",
+        "text": "设置",
+        "iconPath": "images/tab-settings.png",
+        "selectedIconPath": "images/tab-settings-active.png"
+      }
+    ]
+  },
+  "permission": {
+    "scope.camera": {
+      "desc": "用于拍照识别产品标签和扫码"
+    }
+  },
+  "sitemapLocation": "sitemap.json"
+}

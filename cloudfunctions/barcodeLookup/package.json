@@ -1,0 +1,9 @@
+{
+  "name": "barcodeLookup",
+  "version": "1.0.0",
+  "description": "条形码商品查询",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "latest"
+  }
+}

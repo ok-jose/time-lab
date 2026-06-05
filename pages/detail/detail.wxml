@@ -1,0 +1,81 @@
+<!-- pages/detail/detail.wxml - 物品详情页 -->
+<view class="page-detail" wx:if="{{item}}">
+  <!-- 英雄区 -->
+  <view class="detail-hero">
+    <view class="hero-icon {{item.status}}">
+      <text>{{item.icon}}</text>
+    </view>
+    <view class="hero-info">
+      <text class="hero-name">{{item.name}}</text>
+      <text class="hero-category">{{item.category}}</text>
+      <text class="hero-days {{item.status}}">{{item.daysText}}</text>
+    </view>
+  </view>
+
+  <!-- 图片预览 -->
+  <view class="photo-section" wx:if="{{item.photoPath}}">
+    <image class="detail-photo" src="{{item.photoPath}}" mode="aspectFill" bindtap="previewPhoto" />
+  </view>
+
+  <!-- 时间线 -->
+  <view class="timeline-section">
+    <text class="section-title">生命周期时间线</text>
+    <view class="timeline">
+      <!-- 进度背景 -->
+      <view class="timeline-bg"></view>
+      <!-- 进度条 -->
+      <view class="timeline-fill" style="width: {{progressPct}}%;"></view>
+
+      <view class="timeline-node">
+        <view class="node-dot passed"></view>
+        <text class="node-label">开启日期</text>
+        <text class="node-value">{{item.openDate}}</text>
+      </view>
+
+      <view class="timeline-node">
+        <view class="node-dot {{progressPct > 50 ? 'passed' : (progressPct > 0 ? 'active' : '')}}"></view>
+        <text class="node-label">限制使用</text>
+        <text class="node-value">{{item.limitDays}} 天</text>
+      </view>
+
+      <view class="timeline-node">
+        <view class="node-dot {{progressPct >= 100 ? 'passed' : ''}}"></view>
+        <text class="node-label">过期日期</text>
+        <text class="node-value">{{item.expireDate}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 信息面板 -->
+  <view class="info-panel">
+    <view class="info-row">
+      <text class="info-label">剩余天数</text>
+      <text class="info-value {{item.status}}">{{item.daysText}}</text>
+    </view>
+    <view class="info-row">
+      <text class="info-label">限制使用天数</text>
+      <text class="info-value">{{item.limitDays}} 天</text>
+    </view>
+    <view class="info-row" wx:if="{{item.note}}">
+      <text class="info-label">备注</text>
+      <text class="info-value">{{item.note}}</text>
+    </view>
+    <view class="info-row">
+      <text class="info-label">记录时间</text>
+      <text class="info-value">{{item.createdAtDisplay}}</text>
+    </view>
+  </view>
+
+  <!-- 操作按钮 -->
+  <view class="detail-actions">
+    <button class="btn-secondary action-half" bindtap="editItem">编辑</button>
+    <button class="btn-used action-half" bindtap="markUsed" wx:if="{{!item.used}}">标记已用完</button>
+    <button class="btn-secondary action-half" bindtap="unmarkUsed" wx:if="{{item.used}}">恢复</button>
+    <button class="btn-destructive action-half" bindtap="deleteItem">删除</button>
+  </view>
+</view>
+
+<view class="empty-state" wx:else>
+  <text class="empty-icon">🔍</text>
+  <text class="empty-title">物品不存在</text>
+</view>

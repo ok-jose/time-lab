@@ -1,0 +1,9 @@
+{
+  "name": "dailyReminder",
+  "version": "1.0.0",
+  "description": "每日过期提醒定时任务",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "latest"
+  }
+}

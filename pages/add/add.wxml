@@ -1,0 +1,147 @@
+<!-- pages/add/add.wxml - 添加物品页 -->
+<view class="page-add">
+  <!-- 录入模式选择 -->
+  <view class="mode-grid">
+    <view
+      class="mode-card {{currentMode === 'ocr' ? 'selected' : ''}}"
+      data-mode="ocr"
+      bindtap="switchMode"
+    >
+      <view class="mode-icon ocr-bg">📷</view>
+      <text class="mode-label">OCR 识别</text>
+      <text class="mode-desc">对标签拍照自动提取日期</text>
+    </view>
+
+    <view
+      class="mode-card {{currentMode === 'scan' ? 'selected' : ''}}"
+      data-mode="scan"
+      bindtap="switchMode"
+    >
+      <view class="mode-icon scan-bg">📱</view>
+      <text class="mode-label">扫码录入</text>
+      <text class="mode-desc">扫描条形码/二维码</text>
+    </view>
+
+    <view
+      class="mode-card {{currentMode === 'photo' ? 'selected' : ''}}"
+      data-mode="photo"
+      bindtap="switchMode"
+    >
+      <view class="mode-icon photo-bg">🖼️</view>
+      <text class="mode-label">拍照记录</text>
+      <text class="mode-desc">拍下物品并填写信息</text>
+    </view>
+
+    <view
+      class="mode-card {{currentMode === 'manual' ? 'selected' : ''}}"
+      data-mode="manual"
+      bindtap="switchMode"
+    >
+      <view class="mode-icon manual-bg">✏️</view>
+      <text class="mode-label">手动输入</text>
+      <text class="mode-desc">自行填写所有信息</text>
+    </view>
+  </view>
+
+  <!-- OCR 模式 -->
+  <view class="form-section" wx:if="{{currentMode === 'ocr'}}">
+    <view class="form-group">
+      <text class="form-label">拍摄产品标签</text>
+      <view class="action-card" bindtap="takeOCRPhoto">
+        <text class="action-card-icon">📸</text>
+        <text class="action-card-text">{{ocrImagePath ? '重新拍摄' : '点击打开相机识别'}}</text>
+        <image wx:if="{{ocrImagePath}}" class="preview-thumb" src="{{ocrImagePath}}" mode="aspectFill" />
+      </view>
+    </view>
+    <view class="form-group" wx:if="{{ocrResult}}">
+      <text class="form-label">识别结果</text>
+      <view class="ocr-result-card">
+        <text>{{ocrResult}}</text>
+        <view class="ocr-fill-btn" bindtap="fillFromOCR">填入表单</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 扫码模式 -->
+  <view class="form-section" wx:if="{{currentMode === 'scan'}}">
+    <view class="form-group">
+      <text class="form-label">扫码录入</text>
+      <view class="action-card" bindtap="scanCode">
+        <text class="action-card-icon">📱</text>
+        <text class="action-card-text">{{scanResult ? '重新扫码' : '点击打开扫码'}}</text>
+      </view>
+    </view>
+    <view class="form-group" wx:if="{{scanResult}}">
+      <text class="form-label">扫码结果</text>
+      <view class="scan-result-card">
+        <text class="scan-barcode">{{scanCodeText}}</text>
+        <text class="scan-product">{{scanResult}}</text>
+        <view class="ocr-fill-btn" bindtap="fillFromScan">填入表单</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 拍照模式 -->
+  <view class="form-section" wx:if="{{currentMode === 'photo'}}">
+    <view class="form-group">
+      <text class="form-label">物品照片</text>
+      <view class="action-card" bindtap="takePhoto">
+        <text wx:if="{{!photoPath}}" class="action-card-icon">🖼️</text>
+        <text class="action-card-text">{{photoPath ? '重新拍摄' : '点击拍照或选择照片'}}</text>
+        <image wx:if="{{photoPath}}" class="preview-thumb" src="{{photoPath}}" mode="aspectFill" />
+      </view>
+    </view>
+  </view>
+
+  <!-- 通用表单（所有模式共用） -->
+  <view class="form-area">
+    <view class="form-group">
+      <text class="form-label">物品名称 *</text>
+      <input class="input-field" placeholder="例如：眼药水、酸奶、面膜" value="{{form.name}}" bindinput="onInputName" />
+    </view>
+
+    <view class="form-group">
+      <text class="form-label">分类</text>
+      <view class="cat-select-row">
+        <view
+          class="cat-chip {{form.category === cat ? 'active' : ''}}"
+          wx:for="{{categories}}"
+          wx:key="*this"
+          wx:for-item="cat"
+          data-cat="{{cat}}"
+          bindtap="onSelectCategory"
+        >{{cat}}</view>
+      </view>
+    </view>
+
+    <view class="form-row">
+      <view class="form-group flex-1">
+        <text class="form-label">开启日期</text>
+        <picker mode="date" value="{{form.openDate}}" bindchange="onOpenDateChange">
+          <view class="input-field picker-field">{{form.openDate || '请选择'}}</view>
+        </picker>
+      </view>
+      <view class="form-group flex-1">
+        <text class="form-label">过期日期</text>
+        <picker mode="date" value="{{form.expireDate}}" bindchange="onExpireDateChange">
+          <view class="input-field picker-field">{{form.expireDate || '请选择'}}</view>
+        </picker>
+      </view>
+    </view>
+
+    <view class="form-group">
+      <text class="form-label">开启后限制使用天数</text>
+      <input class="input-field" type="number" placeholder="例如：30" value="{{form.limitDays}}" bindinput="onInputLimitDays" />
+      <text class="form-hint">改这个会自动按开启日期推算过期日期；改日期也会反向算出限制天数</text>
+    </view>
+
+    <view class="form-group">
+      <text class="form-label">备注</text>
+      <textarea class="input-field textarea-field" placeholder="添加备注信息..." value="{{form.note}}" bindinput="onInputNote" auto-height maxlength="200" />
+    </view>
+
+    <button class="submit-btn" bindtap="submitItem">
+      <text>{{isEdit ? '保存修改' : '保存物品'}}</text>
+    </button>
+  </view>
+</view>

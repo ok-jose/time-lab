@@ -1,0 +1,81 @@
+/* pages/settings/settings.wxss - 设置页样式 */
+
+.page-settings { padding-bottom: 60rpx; }
+
+.settings-section {
+  background: var(--surface-elevated);
+  border-radius: var(--radius-xl);
+  margin: 24rpx 32rpx;
+  overflow: hidden;
+}
+.settings-item {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 32rpx;
+  border-bottom: 1rpx solid var(--border-light);
+  font-size: 30rpx;
+}
+.settings-item:last-child { border-bottom: none; }
+.settings-item:active { background: #f8f7fc; }
+
+.icon-arrow { font-size: 28rpx; color: var(--text-tertiary); }
+.version { font-size: 26rpx; color: var(--text-tertiary); }
+
+.footer {
+  text-align: center;
+  padding: 48rpx 32rpx;
+  color: var(--text-tertiary);
+  font-size: 24rpx;
+}
+
+/* 清空确认弹窗 */
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+.modal-content {
+  background: var(--surface-elevated);
+  border-radius: var(--radius-xl);
+  width: 600rpx;
+  padding: 48rpx 40rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.modal-title {
+  font-size: 36rpx;
+  font-weight: 700;
+  margin-bottom: 24rpx;
+}
+.modal-body {
+  font-size: 30rpx;
+  color: var(--text-secondary);
+  text-align: center;
+  line-height: 1.5;
+  margin-bottom: 40rpx;
+}
+.modal-actions {
+  display: flex;
+  gap: 24rpx;
+  width: 100%;
+}
+.modal-btn {
+  flex: 1;
+  text-align: center;
+  padding: 28rpx;
+  border-radius: var(--radius-lg);
+  font-size: 30rpx;
+  font-weight: 600;
+}
+.cancel-btn {
+  background: var(--border-light);
+  color: var(--text-secondary);
+}
+.confirm-btn {
+  background: var(--danger);
+  color: #ffffff;
+}

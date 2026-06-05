@@ -1,0 +1,125 @@
+<!-- pages/index/index.wxml - 首页：物品概览 -->
+<view class="page-index">
+  <!-- 顶部自定义导航 -->
+  <view class="nav-bar">
+    <view class="status-bar">
+      <text class="time-mono">{{currentDate}}</text>
+    </view>
+    <view class="nav-header">
+      <text class="nav-title">用不过期</text>
+      <view class="nav-actions">
+        <view class="icon-btn" bindtap="navigateToSettings">
+          <text class="icon-text">⚙</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 统计卡 -->
+  <view class="stats-card">
+    <view class="stat-item">
+      <text class="stat-num">{{stats.total}}</text>
+      <text class="stat-label">总数</text>
+    </view>
+    <view class="stat-divider"></view>
+    <view class="stat-item safe">
+      <text class="stat-num">{{stats.safe}}</text>
+      <text class="stat-label">安全</text>
+    </view>
+    <view class="stat-divider"></view>
+    <view class="stat-item warning">
+      <text class="stat-num">{{stats.warning}}</text>
+      <text class="stat-label">临期</text>
+    </view>
+    <view class="stat-divider"></view>
+    <view class="stat-item danger">
+      <text class="stat-num">{{stats.danger}}</text>
+      <text class="stat-label">过期</text>
+    </view>
+  </view>
+
+  <!-- 搜索框 -->
+  <view class="search-bar">
+    <view class="search-input-wrap">
+      <text class="search-icon">🔍</text>
+      <input
+        class="search-input"
+        placeholder="搜索物品名称或备注"
+        value="{{searchKeyword}}"
+        confirm-type="search"
+        bindinput="onSearchInput"
+      />
+      <text wx:if="{{searchKeyword}}" class="search-clear" bindtap="onSearchClear">×</text>
+    </view>
+  </view>
+
+  <!-- 排序 -->
+  <view class="sort-bar">
+    <text class="sort-label">排序</text>
+    <view class="sort-options">
+      <view class="sort-chip {{sortBy === 'expireAsc' ? 'active' : ''}}" data-sort="expireAsc" bindtap="onSortChange">即将过期</view>
+      <view class="sort-chip {{sortBy === 'createdDesc' ? 'active' : ''}}" data-sort="createdDesc" bindtap="onSortChange">最近添加</view>
+      <view class="sort-chip {{sortBy === 'nameAsc' ? 'active' : ''}}" data-sort="nameAsc" bindtap="onSortChange">名称 A→Z</view>
+    </view>
+  </view>
+
+  <!-- 过期提醒横幅 -->
+  <view class="alert-banner {{alertMode}}" wx:if="{{alertCount > 0}}">
+    <text>{{alertTitle}}</text>
+    <text class="alert-badge">{{alertCount}}</text>
+  </view>
+  <view class="alert-banner all-safe" wx:else>
+    <text>所有物品状态正常</text>
+    <text class="alert-badge safe-badge">✓</text>
+  </view>
+
+  <!-- 分类筛选标签 -->
+  <scroll-view class="cat-tabs" scroll-x enhanced show-scrollbar="{{false}}">
+    <view class="cat-tabs-inner">
+      <view class="cat-tab {{currentFilter === 'all' ? 'active' : ''}}" data-filter="all" bindtap="onFilterChange">全部</view>
+      <view class="cat-tab {{currentFilter === 'safe' ? 'active' : ''}}" data-filter="safe" bindtap="onFilterChange">安全</view>
+      <view class="cat-tab {{currentFilter === 'warning' ? 'active' : ''}}" data-filter="warning" bindtap="onFilterChange">临期</view>
+      <view class="cat-tab {{currentFilter === 'danger' ? 'active' : ''}}" data-filter="danger" bindtap="onFilterChange">过期</view>
+      <view class="cat-tab {{currentFilter === 'used' ? 'active' : ''}}" data-filter="used" bindtap="onFilterChange">已用</view>
+    </view>
+  </scroll-view>
+
+  <!-- 物品列表 -->
+  <scroll-view class="items-scroll" scroll-y enhanced show-scrollbar="{{false}}" wx:if="{{filteredItems.length > 0}}">
+    <view class="items-section">
+      <view
+        class="item-card"
+        wx:for="{{filteredItems}}"
+        wx:key="id"
+        data-id="{{item.id}}"
+        bindtap="onItemTap"
+        bindlongpress="onItemLongPress"
+      >
+        <view class="item-icon {{item.status}}">
+          <text class="item-emoji">{{item.icon}}</text>
+        </view>
+        <view class="item-info">
+          <text class="item-name">{{item.name}}</text>
+          <text class="item-meta">{{item.category}} · 开启于 {{item.openDateDisplay}}</text>
+        </view>
+        <view class="item-status-area">
+          <view class="status-dot {{item.status}}"></view>
+          <text class="days-text {{item.status}}">{{item.daysText}}</text>
+        </view>
+      </view>
+    </view>
+    <view class="bottom-spacer"></view>
+  </scroll-view>
+
+  <!-- 空状态 -->
+  <view class="empty-state" wx:else>
+    <text class="empty-icon">{{searchKeyword ? '🔍' : '🔬'}}</text>
+    <text class="empty-title">{{searchKeyword ? '没有找到匹配的物品' : '还没有记录任何物品'}}</text>
+    <text class="empty-desc">{{searchKeyword ? '试试换个关键词' : '点击右下角 + 按钮，开始记录你的第一件物品吧'}}</text>
+  </view>
+
+  <!-- 悬浮添加按钮 -->
+  <view class="fab-btn" bindtap="goAdd">
+    <text class="fab-icon">+</text>
+  </view>
+</view>

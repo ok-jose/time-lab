@@ -1,0 +1,14 @@
+# 微信开发者工具
+.DS_Store
+node_modules/
+miniprogram_npm/
+
+# 云函数依赖
+cloudfunctions/*/node_modules/
+
+# 临时文件
+*.log
+*.tmp
+
+# 私有配置（含密钥等敏感信息）
+project.private.config.json
