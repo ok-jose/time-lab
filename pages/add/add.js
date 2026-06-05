@@ -1,4 +1,5 @@
 const util = require('../../utils/util');
+const cloud = require('../../utils/cloud');
 const app = getApp();
 
 Page({
@@ -9,12 +10,16 @@ Page({
     currentMode: 'ocr',
     categories: util.getDefaultCategories(),
     ocrImagePath: '',
-    ocrResult: '',
+    ocrResult: '',          // 兼容老字段：原始识别文本（无云时也用）
+    ocrExtracted: null,     // 云端解析后字段：{ expireDate, openDate, limitDays, productName }
     ocrLoading: false,
+    ocrFilled: false,       // 标记是否已经一键填过（防重复覆盖）
     scanResult: '',
     scanCodeText: '',
+    scanInfo: null,         // 云端条码查询：{ country, manufacturerCode, productCode }
     scanLoading: false,
     photoPath: '',
+    cloudReady: false,
     form: {
       name: '',
       category: '其他',
@@ -37,6 +42,7 @@ Page({
           currentMode: 'manual',
           photoPath: item.photoPath || '',
           scanCodeText: item.barCode || '',
+          cloudReady: cloud.isCloudReady(),
           form: {
             name: item.name || '',
             category: item.category || '其他',
@@ -50,7 +56,10 @@ Page({
         return;
       }
     }
-    this.setData({ 'form.openDate': util.formatDate(new Date()) });
+    this.setData({
+      'form.openDate': util.formatDate(new Date()),
+      cloudReady: cloud.isCloudReady()
+    });
     wx.setNavigationBarTitle({ title: '添加物品' });
   },
 
@@ -58,68 +67,148 @@ Page({
     this.setData({ currentMode: e.currentTarget.dataset.mode });
   },
 
-  // ============ OCR 识别（本地拍照 + 手动填写） ============
-  takeOCRPhoto() {
-    wx.chooseMedia({
-      count: 1,
-      mediaType: ['image'],
-      sourceType: ['camera'],
-      camera: 'back',
-      success: (res) => {
-        const path = res.tempFiles[0].tempFilePath;
-        this.setData({ ocrImagePath: path });
+  // ============ OCR 识别：拍照 → 上传云存储 → 调云函数解析 → 一键填表 ============
+  async takeOCRPhoto() {
+    try {
+      const res = await wx.chooseMedia({
+        count: 1,
+        mediaType: ['image'],
+        sourceType: ['camera'],
+        camera: 'back'
+      });
+      const path = res.tempFiles[0].tempFilePath;
+      this.setData({
+        ocrImagePath: path,
+        ocrExtracted: null,
+        ocrFilled: false
+      });
+
+      if (!cloud.isCloudReady()) {
+        // 降级：未开通云开发时只拍照不识别，让用户手动填
+        this.setData({ ocrResult: '云开发未配置 OCR，请手动填写或开通云开发后重试（详见 CLOUD_SETUP.md）' });
+        return;
+      }
+
+      this.setData({ ocrLoading: true });
+      // 上传到云存储（路径：ocr/{时间戳}-{随机}.jpg）
+      const cloudPath = `ocr/${Date.now()}-${Math.floor(Math.random() * 10000)}.jpg`;
+      const upRes = await cloud.uploadFile(cloudPath, path);
+      if (!upRes.ok) {
+        this.setData({ ocrLoading: false });
+        wx.showToast({ title: '图片上传失败：' + upRes.reason, icon: 'none' });
+        return;
+      }
+      // 调云函数识别
+      const ocrRes = await cloud.ocr(upRes.data.fileID);
+      this.setData({ ocrLoading: false });
+      if (!ocrRes.ok) {
+        wx.showToast({ title: 'OCR 识别失败：' + (ocrRes.data && ocrRes.data.message || ocrRes.reason), icon: 'none' });
+        this.setData({ ocrResult: '识别失败：' + (ocrRes.data && ocrRes.data.message || ocrRes.reason) });
+        return;
+      }
+      const extracted = ocrRes.data.extracted || {};
+      this.setData({
+        ocrExtracted: extracted,
+        ocrResult: ocrRes.data.rawText || '（未提取到文本）'
+      });
+      // 如果至少解析出 1 个字段，提示用户一键填入
+      const hits = ['expireDate', 'openDate', 'limitDays', 'productName'].filter(k => extracted[k]);
+      if (hits.length > 0) {
+        wx.showToast({ title: `已识别 ${hits.length} 个字段，点击下方填入表单`, icon: 'none', duration: 2200 });
+      } else {
+        wx.showToast({ title: '未识别到有效日期，请手动填写', icon: 'none' });
+      }
+    } catch (err) {
+      // chooseMedia 失败 / 用户取消
+      if (err && err.errMsg && err.errMsg.indexOf('cancel') !== -1) return;
+      if (err && err.errMsg && err.errMsg.indexOf('auth deny') !== -1) {
         wx.showModal({
-          title: '拍照完成',
-          content: '请手动填写产品信息，或使用扫码功能',
-          confirmText: '去填写',
-          showCancel: false
+          title: '需要相机权限',
+          content: '请在设置中允许小程序使用相机',
+          confirmText: '去设置',
+          success: (r) => { if (r.confirm) wx.openSetting(); }
         });
-      },
-      fail: (err) => {
-        if (err.errMsg.indexOf('auth deny') !== -1) {
-          wx.showModal({
-            title: '需要相机权限',
-            content: '请在设置中允许小程序使用相机',
-            confirmText: '去设置',
-            success: (r) => {
-              if (r.confirm) wx.openSetting();
-            }
-          });
-        }
+        return;
       }
-    });
+      console.error('OCR 流程失败:', err);
+    }
   },
 
+  /** 把 OCR 解析结果批量填入 form（仅填空字段，不覆盖用户已输入的值） */
   fillFromOCR() {
-    wx.showToast({ title: '请手动填写信息', icon: 'none' });
+    const ex = this.data.ocrExtracted;
+    if (!ex) return;
+    const form = { ...this.data.form };
+    if (ex.productName && !form.name) form.name = ex.productName;
+    if (ex.expireDate) {
+      // 改 expireDate 会触发 autoCalcForm
+      Object.assign(form, util.autoCalcForm({ ...form, expireDate: ex.expireDate }, 'expireDate'));
+    }
+    if (ex.openDate && !form.openDate) {
+      Object.assign(form, util.autoCalcForm({ ...form, openDate: ex.openDate }, 'openDate'));
+    }
+    if (ex.limitDays && !form.limitDays) {
+      form.limitDays = ex.limitDays;
+      // 改 limitDays 也走联动
+      const synced = util.autoCalcForm({ ...form, limitDays: ex.limitDays }, 'limitDays');
+      Object.assign(form, synced);
+    }
+    this.setData({ form, ocrFilled: true });
+    wx.showToast({ title: '已填入表单，请检查', icon: 'success' });
   },
 
-  // ============ 扫码录入（本地读取条码号） ============
-  scanCode() {
-    wx.scanCode({
-      scanType: ['barCode', 'qrCode'],
-      success: (res) => {
-        const codeText = res.result;
-        this.setData({
-          scanCodeText: codeText,
-          scanResult: '条码: ' + codeText + '\n\n已记录条码号，请手动填写商品信息',
-          scanLoading: false
-        });
-      },
-      fail: (err) => {
-        if (err.errMsg.indexOf('cancel') === -1) {
-          wx.showToast({ title: '扫码失败，请重试', icon: 'none' });
-        }
+  // ============ 扫码录入：扫码 → 查云端条码库 → 显示国家/厂商码 ============
+  async scanCode() {
+    try {
+      const res = await wx.scanCode({ scanType: ['barCode', 'qrCode'] });
+      const codeText = res.result;
+      this.setData({ scanCodeText: codeText, scanResult: '条码号: ' + codeText, scanInfo: null });
+
+      if (!cloud.isCloudReady()) {
+        // 降级：只记录条码号，不查云端
+        this.setData({ scanResult: '条码号: ' + codeText + '\n\n云开发未配置，跳过商品查询（详见 CLOUD_SETUP.md）' });
+        return;
       }
-    });
+
+      this.setData({ scanLoading: true });
+      const r = await cloud.lookupBarcode(codeText);
+      this.setData({ scanLoading: false });
+      if (r.ok) {
+        const info = r.data;
+        const lines = [
+          '条码号: ' + codeText,
+          '产地: ' + (info.country || '未知'),
+          info.manufacturerCode ? '厂商码: ' + info.manufacturerCode : null,
+          info.suggestion || '请手动填写商品名称'
+        ].filter(Boolean);
+        this.setData({ scanResult: lines.join('\n'), scanInfo: info });
+      } else {
+        this.setData({ scanResult: '条码号: ' + codeText + '\n\n查询失败：' + r.reason });
+      }
+    } catch (err) {
+      if (err && err.errMsg && err.errMsg.indexOf('cancel') !== -1) return;
+      wx.showToast({ title: '扫码失败，请重试', icon: 'none' });
+    }
   },
 
   fillFromScan() {
     if (!this.data.scanCodeText) return;
-    if (!this.data.form.name) {
-      this.setData({ 'form.name': '商品 (' + this.data.scanCodeText.slice(-6) + ')' });
+    const form = { ...this.data.form };
+    if (!form.name) {
+      // 优先用云端返回的厂商码后缀当兜底名称
+      const tail = this.data.scanInfo && this.data.scanInfo.productCode
+        ? this.data.scanInfo.productCode
+        : this.data.scanCodeText.slice(-6);
+      form.name = '商品 (' + tail + ')';
     }
-    wx.showToast({ title: '条码已记录', icon: 'success' });
+    // 扫码得到的条码写到备注里，方便以后查
+    if (!form.note && this.data.scanInfo) {
+      form.note = '条码 ' + this.data.scanCodeText + '（' + (this.data.scanInfo.country || '未知产地') + '）';
+    } else if (!form.note) {
+      form.note = '条码 ' + this.data.scanCodeText;
+    }
+    this.setData({ form });
+    wx.showToast({ title: '已填入条码信息', icon: 'success' });
   },
 
   // ============ 拍照 ============

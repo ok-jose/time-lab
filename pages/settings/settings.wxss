@@ -2,6 +2,19 @@
 
 .page-settings { padding-bottom: 60rpx; }
 
+/* 云开发状态提示 */
+.cloud-status {
+  margin: 24rpx 32rpx 0;
+  padding: 24rpx 28rpx;
+  background: var(--warning-bg);
+  border-left: 6rpx solid var(--warning);
+  border-radius: var(--radius-md);
+  display: flex; flex-direction: column; gap: 6rpx;
+}
+.cloud-status-title { font-size: 28rpx; font-weight: 600; color: #8a6d0f; }
+.cloud-status-line { font-size: 24rpx; color: #8a6d0f; }
+.cloud-status-sub { font-size: 22rpx; color: var(--text-tertiary); margin-top: 4rpx; }
+
 .settings-section {
   background: var(--surface-elevated);
   border-radius: var(--radius-xl);
@@ -19,6 +32,9 @@
 
 .icon-arrow { font-size: 28rpx; color: var(--text-tertiary); }
 .version { font-size: 26rpx; color: var(--text-tertiary); }
+
+.reminder-right { display: flex; align-items: center; }
+.reminder-loading { font-size: 24rpx; color: var(--text-tertiary); }
 
 .footer {
   text-align: center;

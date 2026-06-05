@@ -48,16 +48,60 @@
     <view class="form-group">
       <text class="form-label">拍摄产品标签</text>
       <view class="action-card" bindtap="takeOCRPhoto">
-        <text class="action-card-icon">📸</text>
-        <text class="action-card-text">{{ocrImagePath ? '重新拍摄' : '点击打开相机识别'}}</text>
-        <image wx:if="{{ocrImagePath}}" class="preview-thumb" src="{{ocrImagePath}}" mode="aspectFill" />
+        <text wx:if="{{!ocrImagePath && !ocrLoading}}" class="action-card-icon">📸</text>
+        <view wx:if="{{ocrLoading}}" class="action-card-loading">
+          <text class="loading-dot"></text><text class="loading-dot"></text><text class="loading-dot"></text>
+          <text class="loading-text">识别中...</text>
+        </view>
+        <text class="action-card-text">{{ocrLoading ? '正在上传并识别' : (ocrImagePath ? '重新拍摄' : '点击打开相机识别')}}</text>
+        <image wx:if="{{ocrImagePath && !ocrLoading}}" class="preview-thumb" src="{{ocrImagePath}}" mode="aspectFill" />
       </view>
     </view>
-    <view class="form-group" wx:if="{{ocrResult}}">
-      <text class="form-label">识别结果</text>
+
+    <!-- 云端未配置提示 -->
+    <view class="form-group" wx:if="{{!cloudReady && ocrImagePath}}">
+      <view class="cloud-tip">
+        <text>云开发未配置，OCR 识别不可用</text>
+        <text class="cloud-tip-sub">参考 CLOUD_SETUP.md 开通后可自动识别产品日期</text>
+      </view>
+    </view>
+
+    <!-- 解析出的字段卡片 -->
+    <view class="form-group" wx:if="{{ocrExtracted && !ocrFilled}}">
+      <text class="form-label">识别到的字段</text>
+      <view class="ocr-fields-card">
+        <view class="ocr-field-row" wx:if="{{ocrExtracted.productName}}">
+          <text class="ocr-field-label">名称</text>
+          <text class="ocr-field-value">{{ocrExtracted.productName}}</text>
+        </view>
+        <view class="ocr-field-row" wx:if="{{ocrExtracted.expireDate}}">
+          <text class="ocr-field-label">过期日期</text>
+          <text class="ocr-field-value">{{ocrExtracted.expireDate}}</text>
+        </view>
+        <view class="ocr-field-row" wx:if="{{ocrExtracted.openDate}}">
+          <text class="ocr-field-label">开启日期</text>
+          <text class="ocr-field-value">{{ocrExtracted.openDate}}</text>
+        </view>
+        <view class="ocr-field-row" wx:if="{{ocrExtracted.limitDays}}">
+          <text class="ocr-field-label">限制使用</text>
+          <text class="ocr-field-value">{{ocrExtracted.limitDays}} 天</text>
+        </view>
+        <view class="ocr-fill-btn" bindtap="fillFromOCR">一键填入表单</view>
+      </view>
+    </view>
+
+    <!-- 已填过提示 -->
+    <view class="form-group" wx:if="{{ocrFilled}}">
+      <view class="cloud-tip success">
+        <text>✓ 已填入表单，请在下方检查</text>
+      </view>
+    </view>
+
+    <!-- 原始识别文本（仅在云端失败/无字段时显示） -->
+    <view class="form-group" wx:if="{{ocrResult && !ocrExtracted}}">
+      <text class="form-label">原始识别文本</text>
       <view class="ocr-result-card">
-        <text>{{ocrResult}}</text>
-        <view class="ocr-fill-btn" bindtap="fillFromOCR">填入表单</view>
+        <text class="ocr-raw-text">{{ocrResult}}</text>
       </view>
     </view>
   </view>
@@ -67,15 +111,19 @@
     <view class="form-group">
       <text class="form-label">扫码录入</text>
       <view class="action-card" bindtap="scanCode">
-        <text class="action-card-icon">📱</text>
-        <text class="action-card-text">{{scanResult ? '重新扫码' : '点击打开扫码'}}</text>
+        <text wx:if="{{!scanLoading}}" class="action-card-icon">📱</text>
+        <view wx:if="{{scanLoading}}" class="action-card-loading">
+          <text class="loading-dot"></text><text class="loading-dot"></text><text class="loading-dot"></text>
+          <text class="loading-text">查询中...</text>
+        </view>
+        <text class="action-card-text">{{scanLoading ? '正在查询' : (scanResult ? '重新扫码' : '点击打开扫码')}}</text>
       </view>
     </view>
     <view class="form-group" wx:if="{{scanResult}}">
       <text class="form-label">扫码结果</text>
       <view class="scan-result-card">
         <text class="scan-barcode">{{scanCodeText}}</text>
-        <text class="scan-product">{{scanResult}}</text>
+        <text class="scan-product scan-multiline">{{scanResult}}</text>
         <view class="ocr-fill-btn" bindtap="fillFromScan">填入表单</view>
       </view>
     </view>

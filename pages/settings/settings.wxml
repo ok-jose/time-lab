@@ -1,9 +1,20 @@
 <!-- pages/settings/settings.wxml - 设置页 -->
 <view class="page-settings">
+  <!-- 云开发状态提示 -->
+  <view class="cloud-status" wx:if="{{!cloudReady || !templateConfigured}}">
+    <text class="cloud-status-title">⚙️ 提醒功能需要配置</text>
+    <text class="cloud-status-line" wx:if="{{!cloudReady}}">· 未配置云开发 envId</text>
+    <text class="cloud-status-line" wx:if="{{cloudReady && !templateConfigured}}">· 未配置订阅消息模板 ID</text>
+    <text class="cloud-status-sub">详见 CLOUD_SETUP.md</text>
+  </view>
+
   <view class="settings-section">
-    <view class="settings-item">
+    <view class="settings-item" bindtap="toggleReminder">
       <text>过期提醒</text>
-      <switch checked="{{reminderEnabled}}" bindchange="toggleReminder" />
+      <view class="reminder-right">
+        <text wx:if="{{loading}}" class="reminder-loading">处理中…</text>
+        <switch wx:else checked="{{reminderEnabled}}" disabled="{{loading}}" />
+      </view>
     </view>
     <view class="settings-item" bindtap="toggleCloudSync">
       <text>云同步</text>

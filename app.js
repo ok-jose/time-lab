@@ -6,6 +6,25 @@ App({
 
   onLaunch() {
     this.loadFromStorage();
+    this.initCloud();
+  },
+
+  /** 初始化云开发（容错：未开通时静默，调用方根据 cloud.isCloudReady() 决定降级） */
+  initCloud() {
+    const config = require('./utils/cloudConfig');
+    if (typeof wx === 'undefined' || !wx.cloud) {
+      console.warn('当前微信版本过低，无法使用云开发');
+      return;
+    }
+    if (!config.envId || config.envId.indexOf('__REPLACE') === 0) {
+      console.warn('云开发 envId 未配置，云函数相关功能将不可用。详见 utils/cloudConfig.js');
+      return;
+    }
+    try {
+      wx.cloud.init({ env: config.envId, traceUser: true });
+    } catch (e) {
+      console.error('wx.cloud.init 失败:', e);
+    }
   },
 
   /** 从本地存储加载数据 */
