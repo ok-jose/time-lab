@@ -9,6 +9,9 @@ cloudfunctions/*/node_modules/
 # 临时文件
 *.log
 *.tmp
+# mavis / matrix MCP 工具生成的临时图片（避免主包超 2MB）
+matrix-media-*.png
+matrix-media-*.jpg
 
 # 私有配置（含密钥等敏感信息）
 project.private.config.json
