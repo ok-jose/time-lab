@@ -3,28 +3,17 @@
 .page-index {
   min-height: 100vh;
   padding-bottom: 160rpx;
+  overflow-x: hidden;
+  max-width: 100vw;
+  box-sizing: border-box;
 }
 
 /* 自定义导航 */
 .nav-bar { padding: 0 32rpx; }
-.status-bar {
-  padding: 20rpx 0 12rpx;
-  display: flex; justify-content: flex-end;
-}
-.time-mono { font-size: 24rpx; color: var(--text-secondary); font-family: monospace; letter-spacing: 2rpx; }
 .nav-header {
-  display: flex; align-items: center; justify-content: space-between;
-  padding-bottom: 16rpx;
+  padding: 16rpx 0 16rpx;
 }
 .nav-title { font-size: 48rpx; font-weight: 700; letter-spacing: -1rpx; }
-.nav-actions { display: flex; gap: 12rpx; }
-.icon-btn {
-  width: 72rpx; height: 72rpx;
-  border-radius: var(--radius-sm);
-  background: var(--surface-elevated);
-  display: flex; align-items: center; justify-content: center;
-}
-.icon-text { font-size: 32rpx; }
 
 /* 统计卡 */
 .stats-card {
@@ -165,7 +154,7 @@
 }
 
 /* 物品列表 */
-.items-scroll { min-height: 400rpx; overflow-x: hidden; }
+.items-scroll { min-height: 400rpx; overflow-x: hidden; max-width: 100vw; box-sizing: border-box; }
 .items-section {
   padding: 0 32rpx;
   display: flex; flex-direction: column; gap: 16rpx;

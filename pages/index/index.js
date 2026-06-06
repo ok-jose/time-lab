@@ -19,12 +19,10 @@ Page({
     alertMode: '',
     alertTitle: '',
     alertCount: 0,
-    currentDate: '',
     stats: { total: 0, safe: 0, warning: 0, danger: 0, used: 0 }
   },
 
   onShow() {
-    this.setData({ currentDate: this.formatTime() });
     this.loadItems();
   },
 
@@ -150,16 +148,5 @@ Page({
 
   goAdd() {
     wx.navigateTo({ url: '/pages/add/add' });
-  },
-
-  navigateToSettings() {
-    wx.switchTab({ url: '/pages/settings/settings' });
-  },
-
-  formatTime() {
-    const now = new Date();
-    const h = now.getHours().toString().padStart(2, '0');
-    const m = now.getMinutes().toString().padStart(2, '0');
-    return `${h}:${m}`;
   }
 });

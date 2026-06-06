@@ -2,16 +2,8 @@
 <view class="page-index">
   <!-- 顶部自定义导航 -->
   <view class="nav-bar">
-    <view class="status-bar">
-      <text class="time-mono">{{currentDate}}</text>
-    </view>
     <view class="nav-header">
       <text class="nav-title">用不过期</text>
-      <view class="nav-actions">
-        <view class="icon-btn" bindtap="navigateToSettings">
-          <text class="icon-text">⚙</text>
-        </view>
-      </view>
     </view>
   </view>
 
