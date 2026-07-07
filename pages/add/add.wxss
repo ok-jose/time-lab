@@ -205,3 +205,41 @@
   letter-spacing: 2rpx;
 }
 .submit-btn:active { opacity: 0.85; transform: scale(0.97); }
+
+/* 预设模板区 */
+.template-section {
+  padding: 16rpx 32rpx 24rpx;
+  max-width: 100vw;
+  box-sizing: border-box;
+}
+.template-scroll {
+  white-space: nowrap;
+  margin-top: 12rpx;
+  max-width: 100%;
+}
+.template-inner {
+  display: inline-flex;
+  gap: 16rpx;
+  padding: 4rpx 0 12rpx;
+}
+.template-chip {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4rpx;
+  padding: 20rpx 24rpx;
+  background: linear-gradient(180deg, #ffffff 0%, var(--surface) 100%);
+  border: 2rpx solid var(--border);
+  border-radius: var(--radius-md);
+  min-width: 120rpx;
+  flex-shrink: 0;
+  box-shadow: 0 2rpx 6rpx rgba(0,0,0,0.03);
+}
+.template-chip:active {
+  border-color: var(--accent);
+  background: var(--accent-light);
+  transform: scale(0.96);
+}
+.template-icon { font-size: 36rpx; line-height: 1; }
+.template-name { font-size: 24rpx; font-weight: 600; color: var(--text-primary); }
+.template-days { font-size: 20rpx; color: var(--text-tertiary); }

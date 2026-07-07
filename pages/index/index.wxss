@@ -9,9 +9,11 @@
 }
 
 /* 自定义导航 */
-.nav-bar { padding: 0 32rpx; }
+.nav-bar {
+  padding: 0 32rpx;
+}
 .nav-header {
-  padding: 16rpx 0 16rpx;
+  padding: 24rpx 0 16rpx;
 }
 .nav-title { font-size: 48rpx; font-weight: 700; letter-spacing: -1rpx; }
 
@@ -153,6 +155,42 @@
   border-color: var(--text-primary);
 }
 
+/* 工具栏：数据统计 / 过期日历 入口 */
+.toolbar {
+  display: flex;
+  gap: 16rpx;
+  padding: 16rpx 32rpx 8rpx;
+  max-width: 100vw;
+  box-sizing: border-box;
+}
+.toolbar-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10rpx;
+  background: var(--surface-elevated);
+  border: 2rpx solid var(--border-light);
+  border-radius: var(--radius-md);
+  padding: 20rpx 16rpx;
+  color: var(--text-secondary);
+  font-weight: 500;
+  box-shadow: 0 2rpx 6rpx rgba(0,0,0,0.03);
+}
+.toolbar-btn:active {
+  background: var(--accent-light);
+  border-color: var(--accent);
+  color: var(--accent);
+  transform: scale(0.98);
+}
+.toolbar-icon {
+  font-size: 28rpx;
+  line-height: 1;
+}
+.toolbar-label {
+  font-size: 26rpx;
+}
+
 /* 物品列表 */
 .items-scroll { min-height: 400rpx; overflow-x: hidden; max-width: 100vw; box-sizing: border-box; }
 .items-section {
@@ -194,6 +232,11 @@
 .item-meta {
   font-size: 22rpx; color: var(--text-tertiary);
   font-family: monospace; letter-spacing: 1rpx;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.item-location {
+  color: var(--accent);
+  font-weight: 500;
 }
 
 .item-status-area {

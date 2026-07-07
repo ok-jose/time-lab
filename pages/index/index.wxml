@@ -1,7 +1,7 @@
 <!-- pages/index/index.wxml - 首页：物品概览 -->
 <view class="page-index">
   <!-- 顶部自定义导航 -->
-  <view class="nav-bar">
+  <view class="nav-bar" style="padding-top: {{statusBarHeight}}px;">
     <view class="nav-header">
       <text class="nav-title">用不过期</text>
     </view>
@@ -42,6 +42,18 @@
         bindinput="onSearchInput"
       />
       <text wx:if="{{searchKeyword}}" class="search-clear" bindtap="onSearchClear">×</text>
+    </view>
+  </view>
+
+  <!-- 工具栏：数据统计 / 过期日历 入口 -->
+  <view class="toolbar">
+    <view class="toolbar-btn" bindtap="goStats">
+      <text class="toolbar-icon">📊</text>
+      <text class="toolbar-label">数据统计</text>
+    </view>
+    <view class="toolbar-btn" bindtap="goCalendar">
+      <text class="toolbar-icon">📅</text>
+      <text class="toolbar-label">过期日历</text>
     </view>
   </view>
 
@@ -92,7 +104,10 @@
         </view>
         <view class="item-info">
           <text class="item-name">{{item.name}}</text>
-          <text class="item-meta">{{item.category}} · 开启于 {{item.openDateDisplay}}</text>
+          <text class="item-meta">
+            <text>{{item.category}} · 开启于 {{item.openDateDisplay}}</text>
+            <text wx:if="{{item.location}}" class="item-location"> · 📍{{item.location}}</text>
+          </text>
         </view>
         <view class="item-status-area">
           <view class="status-dot {{item.status}}"></view>

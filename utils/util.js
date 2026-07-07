@@ -112,6 +112,32 @@ function getDefaultCategories() {
   return ['食品', '药品', '化妆品', '饮料', '日用品', '其他'];
 }
 
+/**
+ * 预设模板：一键填表的常用物品预设
+ * 字段：id / name / category / icon / limitDays / location
+ * 点一下就把这些字段填进 form，用户再补 openDate/expireDate 即可
+ */
+const TEMPLATES = [
+  { id: 'mask',     name: '面膜',     category: '化妆品', icon: '🧴', limitDays: 30,  location: '梳妆台' },
+  { id: 'yogurt',   name: '酸奶',     category: '食品',   icon: '🥛', limitDays: 7,   location: '冰箱' },
+  { id: 'eyedrop',  name: '眼药水',   category: '药品',   icon: '💊', limitDays: 30,  location: '床头柜' },
+  { id: 'soy',      name: '酱油',     category: '食品',   icon: '🍶', limitDays: 180, location: '灶台' },
+  { id: 'shampoo',  name: '洗发水',   category: '日用品', icon: '🧼', limitDays: 365, location: '浴室' },
+  { id: 'lip',      name: '润唇膏',   category: '化妆品', icon: '💄', limitDays: 365, location: '随身包' },
+  { id: 'milk',     name: '鲜奶',     category: '饮料',   icon: '🥛', limitDays: 15,  location: '冰箱' },
+  { id: 'cream',    name: '面霜',     category: '化妆品', icon: '🧴', limitDays: 365, location: '梳妆台' }
+];
+
+/** 获取预设模板列表 */
+function getTemplates() {
+  return TEMPLATES;
+}
+
+/** 根据 id 查单个模板 */
+function getTemplateById(id) {
+  return TEMPLATES.find(t => t.id === id) || null;
+}
+
 /** 格式化日期时间 */
 function formatDateTime(date) {
   const d = new Date(date);
@@ -129,5 +155,7 @@ module.exports = {
   formatDateDisplay,
   formatDateTime,
   getCategoryIcon,
-  getDefaultCategories
+  getDefaultCategories,
+  getTemplates,
+  getTemplateById
 };

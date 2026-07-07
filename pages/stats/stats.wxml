@@ -1,0 +1,103 @@
+<!-- pages/stats/stats.wxml - 数据统计页 -->
+<view class="page-stats">
+
+  <!-- 顶部汇总 -->
+  <view class="summary-card">
+    <view class="summary-item">
+      <text class="summary-num">{{summary.total}}</text>
+      <text class="summary-label">总数</text>
+    </view>
+    <view class="summary-divider"></view>
+    <view class="summary-item warning">
+      <text class="summary-num">{{summary.warning}}</text>
+      <text class="summary-label">临期</text>
+    </view>
+    <view class="summary-divider"></view>
+    <view class="summary-item danger">
+      <text class="summary-num">{{summary.danger}}</text>
+      <text class="summary-label">已过期</text>
+    </view>
+    <view class="summary-divider"></view>
+    <view class="summary-item used">
+      <text class="summary-num">{{summary.used}}</text>
+      <text class="summary-label">已用完</text>
+    </view>
+  </view>
+
+  <!-- 本月数据 -->
+  <view class="section">
+    <text class="section-title">📊 本月数据</text>
+    <view class="month-grid">
+      <view class="month-card">
+        <text class="month-num">{{monthStats.added}}</text>
+        <text class="month-label">新增物品</text>
+      </view>
+      <view class="month-card danger-bg">
+        <text class="month-num">{{monthStats.expired}}</text>
+        <text class="month-label">本月过期</text>
+      </view>
+      <view class="month-card used-bg">
+        <text class="month-num">{{monthStats.usedUp}}</text>
+        <text class="month-label">本月用完</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 分类分布 -->
+  <view class="section" wx:if="{{categoryDist.length > 0}}">
+    <text class="section-title">🥧 分类分布</text>
+    <view class="pie-row">
+      <view class="pie-chart" style="background: conic-gradient({{pieGradient}});">
+        <view class="pie-center">
+          <text class="pie-center-num">{{summary.total}}</text>
+          <text class="pie-center-label">总数</text>
+        </view>
+      </view>
+      <view class="pie-legend">
+        <view class="pie-legend-item" wx:for="{{categoryDist}}" wx:key="category" wx:for-item="c">
+          <view class="pie-dot" style="background: {{c.color}};"></view>
+          <text class="pie-name">{{c.category}}</text>
+          <text class="pie-pct">{{c.pct}}%</text>
+          <text class="pie-count">{{c.count}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 7 天趋势 -->
+  <view class="section">
+    <text class="section-title">📈 近 7 天添加趋势</text>
+    <view class="trend-empty" wx:if="{{trendMax === 0}}">
+      <text>最近 7 天还没添加物品</text>
+    </view>
+    <view class="trend-chart" wx:else>
+      <view class="trend-bar-wrap" wx:for="{{trendData}}" wx:key="date" wx:for-item="d">
+        <text class="trend-num">{{d.count > 0 ? d.count : ''}}</text>
+        <view class="trend-bar {{d.isToday ? 'today' : ''}}" style="height: {{d.heightPct}}%;"></view>
+        <text class="trend-day {{d.isToday ? 'today' : ''}}">{{d.dayLabel}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 存放位置 TOP 5 -->
+  <view class="section" wx:if="{{locationRank.length > 0}}">
+    <text class="section-title">📍 常用存放位置 TOP 5</text>
+    <view class="location-list">
+      <view class="location-row" wx:for="{{locationRank}}" wx:key="name" wx:for-item="l">
+        <text class="location-rank">{{index + 1}}</text>
+        <text class="location-name">{{l.name}}</text>
+        <view class="location-bar-bg">
+          <view class="location-bar-fg" style="width: {{l.pct}}%;"></view>
+        </view>
+        <text class="location-count">{{l.count}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 空状态 -->
+  <view class="empty-state" wx:if="{{summary.total === 0}}">
+    <text class="empty-icon">📊</text>
+    <text class="empty-title">还没有数据</text>
+    <text class="empty-desc">添加物品后，这里会展示统计图表</text>
+  </view>
+</view>

@@ -1,0 +1,90 @@
+<!-- pages/calendar/calendar.wxml - 月历视图 -->
+<view class="page-calendar">
+
+  <!-- 月份切换 -->
+  <view class="month-nav">
+    <view class="month-btn" bindtap="prevMonth">‹</view>
+    <text class="month-title">{{year}}年{{month}}月</text>
+    <view class="month-btn" bindtap="nextMonth">›</view>
+  </view>
+
+  <!-- 状态图例 -->
+  <view class="legend">
+    <view class="legend-item">
+      <view class="legend-dot danger"></view>
+      <text>已过期</text>
+    </view>
+    <view class="legend-item">
+      <view class="legend-dot warning"></view>
+      <text>今日到期</text>
+    </view>
+  </view>
+
+  <!-- 星期表头 -->
+  <view class="weekdays">
+    <text class="weekday {{item.weekend ? 'weekend' : ''}}" wx:for="{{weekdays}}" wx:key="idx" wx:for-item="item">{{item.label}}</text>
+  </view>
+
+  <!-- 日期网格 -->
+  <view class="days-grid">
+    <view
+      wx:for="{{days}}"
+      wx:key="idx"
+      class="day-cell {{item.empty ? 'empty' : ''}} {{item.isToday ? 'today' : ''}} {{item.isPast ? 'past' : ''}} {{item.dateKey === selectedDayKey ? 'selected' : ''}}"
+      data-idx="{{item.idx}}"
+      bindtap="onDayTap"
+    >
+      <text wx:if="{{!item.empty}}" class="day-num">{{item.day}}</text>
+      <view wx:if="{{item.expiredCount > 0}}" class="day-badge danger">
+        {{item.expiredCount}}
+      </view>
+      <view wx:elif="{{item.todayExpireCount > 0}}" class="day-badge warning">
+        {{item.todayExpireCount}}
+      </view>
+    </view>
+  </view>
+
+  <!-- 当日详情 -->
+  <view class="day-detail" wx:if="{{selectedDayItems.length > 0}}">
+    <text class="detail-title">{{selectedDayLabel}}</text>
+    <view
+      class="detail-item"
+      wx:for="{{selectedDayItems}}"
+      wx:key="id"
+      wx:for-item="it"
+      data-id="{{it.id}}"
+      bindtap="goDetail"
+    >
+      <view class="detail-icon {{it.status}}">
+        <text>{{it.icon}}</text>
+      </view>
+      <view class="detail-info">
+        <text class="detail-name">{{it.name}}</text>
+        <text class="detail-meta" wx:if="{{it.location}}">📍 {{it.location}} · {{it.category}}</text>
+        <text class="detail-meta" wx:else>{{it.category}}</text>
+      </view>
+      <text class="detail-status {{it.status}}">{{it.statusText}}</text>
+    </view>
+  </view>
+  <view class="day-detail-empty" wx:elif="{{selectedDayKey}}">
+    <text>这一天没有过期物品</text>
+  </view>
+
+  <!-- 月汇总 -->
+  <view class="month-summary">
+    <view class="ms-item">
+      <text class="ms-num">{{monthSummary.expired}}</text>
+      <text class="ms-label">本月过期</text>
+    </view>
+    <view class="ms-divider"></view>
+    <view class="ms-item">
+      <text class="ms-num">{{monthSummary.today}}</text>
+      <text class="ms-label">今日到期</text>
+    </view>
+    <view class="ms-divider"></view>
+    <view class="ms-item">
+      <text class="ms-num">{{monthSummary.future}}</text>
+      <text class="ms-label">未来过期</text>
+    </view>
+  </view>
+</view>

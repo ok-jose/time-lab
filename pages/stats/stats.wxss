@@ -1,0 +1,272 @@
+/* pages/stats/stats.wxss */
+
+.page-stats {
+  padding: 24rpx 32rpx 60rpx;
+  max-width: 100vw;
+  box-sizing: border-box;
+}
+
+/* ===== 顶部汇总卡 ===== */
+.summary-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  background: var(--surface-elevated);
+  border-radius: var(--radius-lg);
+  padding: 32rpx 16rpx;
+  margin-bottom: 24rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0,0,0,0.04);
+}
+.summary-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6rpx;
+  flex: 1;
+}
+.summary-num {
+  font-size: 48rpx;
+  font-weight: 700;
+  font-family: -apple-system, monospace;
+  color: var(--text-primary);
+  line-height: 1.1;
+}
+.summary-item.warning .summary-num { color: var(--warning); }
+.summary-item.danger .summary-num { color: var(--danger); }
+.summary-item.used .summary-num { color: var(--used); }
+.summary-label {
+  font-size: 22rpx;
+  color: var(--text-tertiary);
+}
+.summary-divider {
+  width: 2rpx;
+  height: 56rpx;
+  background: var(--border);
+}
+
+/* ===== 通用 section ===== */
+.section {
+  background: var(--surface-elevated);
+  border-radius: var(--radius-lg);
+  padding: 28rpx 28rpx 32rpx;
+  margin-bottom: 24rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0,0,0,0.04);
+}
+.section-title {
+  font-size: 30rpx;
+  font-weight: 700;
+  margin-bottom: 24rpx;
+  display: block;
+}
+
+/* ===== 本月数据 ===== */
+.month-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 16rpx;
+}
+.month-card {
+  background: var(--accent-light);
+  border-radius: var(--radius-md);
+  padding: 28rpx 12rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8rpx;
+}
+.month-card.danger-bg { background: var(--danger-bg); }
+.month-card.used-bg { background: var(--used-bg); }
+.month-num {
+  font-size: 44rpx;
+  font-weight: 700;
+  color: var(--accent);
+  line-height: 1.1;
+}
+.month-card.danger-bg .month-num { color: var(--danger); }
+.month-card.used-bg .month-num { color: var(--used); }
+.month-label {
+  font-size: 22rpx;
+  color: var(--text-secondary);
+}
+
+/* ===== 饼图 ===== */
+.pie-row {
+  display: flex;
+  align-items: center;
+  gap: 28rpx;
+}
+.pie-chart {
+  width: 220rpx;
+  height: 220rpx;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  box-shadow: 0 2rpx 8rpx rgba(0,0,0,0.06);
+}
+.pie-center {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 50%;
+  background: var(--surface-elevated);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.pie-center-num {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.1;
+}
+.pie-center-label {
+  font-size: 20rpx;
+  color: var(--text-tertiary);
+  margin-top: 4rpx;
+}
+.pie-legend {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+  min-width: 0;
+}
+.pie-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+  font-size: 24rpx;
+}
+.pie-dot {
+  width: 16rpx;
+  height: 16rpx;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.pie-name {
+  flex: 1;
+  color: var(--text-primary);
+}
+.pie-pct {
+  color: var(--text-secondary);
+  font-family: monospace;
+  min-width: 60rpx;
+  text-align: right;
+}
+.pie-count {
+  color: var(--text-tertiary);
+  font-family: monospace;
+  min-width: 36rpx;
+  text-align: right;
+}
+
+/* ===== 7 天趋势 ===== */
+.trend-empty {
+  text-align: center;
+  color: var(--text-tertiary);
+  font-size: 24rpx;
+  padding: 40rpx 0;
+}
+.trend-chart {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12rpx;
+  height: 240rpx;
+  padding-top: 20rpx;
+}
+.trend-bar-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8rpx;
+  height: 100%;
+}
+.trend-num {
+  font-size: 20rpx;
+  color: var(--text-tertiary);
+  font-family: monospace;
+  min-height: 24rpx;
+  line-height: 1;
+}
+.trend-bar {
+  width: 70%;
+  max-width: 48rpx;
+  background: linear-gradient(180deg, var(--accent-light) 0%, var(--accent) 100%);
+  border-radius: 8rpx 8rpx 4rpx 4rpx;
+  min-height: 6rpx;
+  transition: height 0.3s;
+}
+.trend-bar.today {
+  background: linear-gradient(180deg, var(--warning-bg) 0%, var(--warning) 100%);
+}
+.trend-day {
+  font-size: 22rpx;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+.trend-day.today {
+  color: var(--warning);
+  font-weight: 700;
+}
+
+/* ===== 位置排名 ===== */
+.location-list {
+  display: flex;
+  flex-direction: column;
+  gap: 18rpx;
+}
+.location-row {
+  display: flex;
+  align-items: center;
+  gap: 14rpx;
+  font-size: 26rpx;
+}
+.location-rank {
+  width: 32rpx;
+  height: 32rpx;
+  border-radius: 50%;
+  background: var(--accent-light);
+  color: var(--accent);
+  font-size: 22rpx;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-family: monospace;
+}
+.location-name {
+  flex: 0 0 auto;
+  color: var(--text-primary);
+  min-width: 140rpx;
+  max-width: 200rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.location-bar-bg {
+  flex: 1;
+  height: 12rpx;
+  background: var(--border-light);
+  border-radius: 6rpx;
+  overflow: hidden;
+}
+.location-bar-fg {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent) 0%, var(--accent-light) 100%);
+  border-radius: 6rpx;
+  transition: width 0.4s;
+}
+.location-count {
+  font-family: monospace;
+  color: var(--text-secondary);
+  min-width: 32rpx;
+  text-align: right;
+  font-weight: 600;
+}

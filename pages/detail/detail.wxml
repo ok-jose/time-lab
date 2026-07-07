@@ -60,6 +60,10 @@
       <text class="info-label">备注</text>
       <text class="info-value">{{item.note}}</text>
     </view>
+    <view class="info-row" wx:if="{{item.location}}">
+      <text class="info-label">存放位置</text>
+      <text class="info-value">📍 {{item.location}}</text>
+    </view>
     <view class="info-row">
       <text class="info-label">记录时间</text>
       <text class="info-value">{{item.createdAtDisplay}}</text>

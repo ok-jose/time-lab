@@ -141,6 +141,26 @@
     </view>
   </view>
 
+  <!-- 预设模板：常用物品一键填表 -->
+  <view class="template-section" wx:if="{{!isEdit && templates.length > 0}}">
+    <text class="form-label">⚡ 常用模板（一键填表）</text>
+    <scroll-view class="template-scroll" scroll-x enhanced show-scrollbar="{{false}}">
+      <view class="template-inner">
+        <view
+          class="template-chip"
+          wx:for="{{templates}}"
+          wx:key="id"
+          data-id="{{item.id}}"
+          bindtap="onApplyTemplate"
+        >
+          <text class="template-icon">{{item.icon}}</text>
+          <text class="template-name">{{item.name}}</text>
+          <text class="template-days">{{item.limitDays}}天</text>
+        </view>
+      </view>
+    </scroll-view>
+  </view>
+
   <!-- 通用表单（所有模式共用） -->
   <view class="form-area">
     <view class="form-group">
@@ -186,6 +206,11 @@
     <view class="form-group">
       <text class="form-label">备注</text>
       <textarea class="input-field textarea-field" placeholder="添加备注信息..." value="{{form.note}}" bindinput="onInputNote" auto-height maxlength="200" />
+    </view>
+
+    <view class="form-group">
+      <text class="form-label">存放位置（选填）</text>
+      <input class="input-field" placeholder="例如：冰箱第二层、洗手台" value="{{form.location}}" bindinput="onInputLocation" maxlength="30" />
     </view>
 
     <button class="submit-btn" bindtap="submitItem">

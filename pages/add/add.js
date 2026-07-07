@@ -9,6 +9,7 @@ Page({
     pageTitle: '添加物品',
     currentMode: 'ocr',
     categories: util.getDefaultCategories(),
+    templates: util.getTemplates(),
     ocrImagePath: '',
     ocrResult: '',          // 兼容老字段：原始识别文本（无云时也用）
     ocrExtracted: null,     // 云端解析后字段：{ expireDate, openDate, limitDays, productName }
@@ -26,7 +27,8 @@ Page({
       openDate: '',
       expireDate: '',
       limitDays: '',
-      note: ''
+      note: '',
+      location: ''
     }
   },
 
@@ -49,7 +51,8 @@ Page({
             openDate: item.openDate || '',
             expireDate: item.expireDate || '',
             limitDays: item.limitDays ? String(item.limitDays) : '',
-            note: item.note || ''
+            note: item.note || '',
+            location: item.location || ''
           }
         });
         wx.setNavigationBarTitle({ title: '编辑物品' });
@@ -65,6 +68,23 @@ Page({
 
   switchMode(e) {
     this.setData({ currentMode: e.currentTarget.dataset.mode });
+  },
+
+  /** 应用预设模板：把模板字段填进 form，不覆盖用户已输入的值 */
+  onApplyTemplate(e) {
+    const id = e.currentTarget.dataset.id;
+    const tpl = util.getTemplateById(id);
+    if (!tpl) return;
+    const form = { ...this.data.form };
+    if (!form.name) form.name = tpl.name;
+    if (!form.category || form.category === '其他') form.category = tpl.category;
+    if (!form.limitDays) {
+      // 改 limitDays 会触发 autoCalcForm 联动算出 expireDate
+      Object.assign(form, util.autoCalcForm({ ...form, limitDays: String(tpl.limitDays) }, 'limitDays'));
+    }
+    if (!form.location) form.location = tpl.location;
+    this.setData({ form });
+    wx.showToast({ title: `已套用「${tpl.name}」模板`, icon: 'success', duration: 1500 });
   },
 
   // ============ OCR 识别：拍照 → 上传云存储 → 调云函数解析 → 一键填表 ============
@@ -227,6 +247,7 @@ Page({
   onSelectCategory(e) { this.setData({ 'form.category': e.currentTarget.dataset.cat }); },
   onInputName(e) { this.setData({ 'form.name': e.detail.value }); },
   onInputNote(e) { this.setData({ 'form.note': e.detail.value }); },
+  onInputLocation(e) { this.setData({ 'form.location': e.detail.value }); },
 
   onInputLimitDays(e) {
     const form = util.autoCalcForm({ ...this.data.form, limitDays: e.detail.value }, 'limitDays');
@@ -268,6 +289,7 @@ Page({
       expireDate: expireDate,
       limitDays: parseInt(limitDays) || 30,
       note: f.note.trim(),
+      location: (f.location || '').trim(),
       daysLeft: daysLeft,
       photoPath: this.data.photoPath || '',
       barCode: this.data.scanCodeText || ''

@@ -19,7 +19,28 @@ Page({
     alertMode: '',
     alertTitle: '',
     alertCount: 0,
-    stats: { total: 0, safe: 0, warning: 0, danger: 0, used: 0 }
+    stats: { total: 0, safe: 0, warning: 0, danger: 0, used: 0 },
+    statusBarHeight: 20,  // iPhone 灵动岛/状态栏高度
+    capsuleRight: 8       // 胶囊按钮右边到屏幕右边的距离，避免自定义 nav 跟胶囊重叠
+  },
+
+  onLoad() {
+    try {
+      const sys = wx.getSystemInfoSync();
+      let capsuleRight = 100; // 兜底（无胶囊时也留出右侧空间）
+      if (wx.getMenuButtonBoundingClientRect) {
+        const menu = wx.getMenuButtonBoundingClientRect();
+        // 让 nav-actions 右边停在胶囊左边 - 8px：
+        // padding-right = 屏幕宽 - 胶囊左边 + 缓冲
+        capsuleRight = (sys.windowWidth - menu.left) + 8;
+      }
+      this.setData({
+        statusBarHeight: sys.statusBarHeight || 20,
+        capsuleRight
+      });
+    } catch (e) {
+      // 拿不到就用兜底值
+    }
   },
 
   onShow() {
@@ -148,5 +169,13 @@ Page({
 
   goAdd() {
     wx.navigateTo({ url: '/pages/add/add' });
+  },
+
+  goStats() {
+    wx.navigateTo({ url: '/pages/stats/stats' });
+  },
+
+  goCalendar() {
+    wx.navigateTo({ url: '/pages/calendar/calendar' });
   }
 });
