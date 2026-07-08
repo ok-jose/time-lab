@@ -1,4 +1,5 @@
 const util = require('../../utils/util');
+const reminder = require('../../utils/reminder');
 const app = getApp();
 
 // 排序方式定义：键 -> 排序函数
@@ -45,6 +46,19 @@ Page({
 
   onShow() {
     this.loadItems();
+
+    // 处理「提醒 modal 跳过来」的 filter 切换（用户点了「去看下」）
+    const wantedFilter = app.globalData && app.globalData._reminderFilter;
+    if (wantedFilter) {
+      app.globalData._reminderFilter = '';
+      if (wantedFilter !== this.data.currentFilter) {
+        this.setData({ currentFilter: wantedFilter });
+        this.loadItems();
+      }
+    }
+
+    // 本地过期提醒（每天首次进首页弹 1 次，遵守 PRD R3 推送疲劳防御）
+    reminder.checkAndShow(app.globalData.items || []);
   },
 
   onPullDownRefresh() {

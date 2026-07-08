@@ -56,22 +56,6 @@ Page({
     }
   },
 
-  editItem() {
-    wx.showActionSheet({
-      itemList: ['修改名称', '修改日期', '修改分类'],
-      success: (res) => {
-        const item = this.data.item;
-        if (res.tapIndex === 0) {
-          wx.showToast({ title: '长按首页物品可删除后重新添加', icon: 'none', duration: 2500 });
-        } else if (res.tapIndex === 1) {
-          wx.showToast({ title: '长按首页物品可删除后重新添加', icon: 'none', duration: 2500 });
-        } else if (res.tapIndex === 2) {
-          wx.showToast({ title: '长按首页物品可删除后重新添加', icon: 'none', duration: 2500 });
-        }
-      }
-    });
-  },
-
   markUsed() {
     const item = this.data.item;
     if (item.used) {

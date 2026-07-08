@@ -1,0 +1,1126 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+<title>用不过期 v2.0 · 公开版 PRD</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Outfit:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  /* ---------- Tokens ---------- */
+  :root {
+    --paper: #f7f5f0;
+    --paper-2: #efeae0;
+    --ink: #14171e;
+    --ink-2: #3a4256;
+    --muted: #7c7a72;
+    --line: #e9e3d6;
+    --line-soft: #efeadf;
+    --primary: #c97b3f;        /* warm orange - 主色 */
+    --primary-soft: rgba(201, 123, 63, 0.10);
+    --primary-line: rgba(201, 123, 63, 0.30);
+    --accent-2: #2f6f5e;      /* deep green - 节约/留存 */
+    --accent-2-soft: rgba(47, 111, 94, 0.10);
+    --accent-3: #5d6b8c;      /* slate - 协作/分享 */
+    --accent-3-soft: rgba(93, 107, 140, 0.10);
+    --danger: #b06367;
+    --danger-soft: rgba(176, 99, 103, 0.10);
+    --radius: 18px;
+    --radius-lg: 24px;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { padding: 0; margin: 0; }
+
+  body {
+    font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    line-height: 1.6;
+    font-size: 15px;
+    -webkit-font-smoothing: antialiased;
+    background-image:
+      radial-gradient(at 12% 0%, rgba(201, 123, 63, 0.05), transparent 40%),
+      radial-gradient(at 88% 100%, rgba(47, 111, 94, 0.04), transparent 40%);
+    background-attachment: fixed;
+  }
+
+  h1, h2, h3 { letter-spacing: -0.01em; }
+  .serif { font-family: 'DM Serif Display', Georgia, serif; }
+  .mono { font-family: 'JetBrains Mono', 'SF Mono', Consolas, monospace; }
+
+  /* ---------- Layout ---------- */
+  .container {
+    max-width: 1040px;
+    margin: 0 auto;
+    padding: 64px 28px 96px;
+  }
+  @media (min-width: 768px) {
+    .container { padding: 88px 56px 120px; }
+  }
+
+  /* ---------- Hero ---------- */
+  .hero { margin-bottom: 64px; }
+  .hero .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    color: var(--primary);
+    text-transform: uppercase;
+    background: var(--primary-soft);
+    border: 1px solid var(--primary-line);
+    padding: 5px 12px;
+    border-radius: 999px;
+    margin-bottom: 24px;
+  }
+  .hero h1 {
+    font-family: 'DM Serif Display', Georgia, serif;
+    font-weight: 400;
+    font-size: clamp(40px, 6vw, 64px);
+    line-height: 1.05;
+    margin: 0 0 18px;
+    letter-spacing: -0.025em;
+  }
+  .hero h1 .accent { color: var(--primary); font-style: italic; }
+  .hero .sub {
+    font-size: 18px;
+    color: var(--ink-2);
+    max-width: 640px;
+    margin: 0 0 32px;
+  }
+  .hero .meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+    padding-top: 24px;
+    border-top: 1px solid var(--line);
+  }
+  .hero .meta dt { display: inline; opacity: 0.6; margin-right: 4px; }
+  .hero .meta dd { display: inline; margin: 0 12px 0 0; color: var(--ink-2); }
+
+  /* ---------- Section ---------- */
+  section { margin-top: 72px; }
+  section .sec-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: 0.18em;
+    margin-bottom: 8px;
+  }
+  section h2 {
+    font-family: 'DM Serif Display', Georgia, serif;
+    font-weight: 400;
+    font-size: clamp(28px, 4vw, 38px);
+    line-height: 1.15;
+    margin: 0 0 12px;
+    letter-spacing: -0.015em;
+  }
+  section .lede {
+    font-size: 16px;
+    color: var(--ink-2);
+    max-width: 680px;
+    margin: 0 0 36px;
+  }
+
+  /* ---------- Positioning (big quote) ---------- */
+  .positioning-callout {
+    background: white;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    padding: 40px 44px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.03);
+    position: relative;
+  }
+  .positioning-callout::before {
+    content: "";
+    position: absolute;
+    left: 0; top: 24px; bottom: 24px;
+    width: 4px;
+    background: var(--primary);
+    border-radius: 0 2px 2px 0;
+  }
+  .positioning-callout p {
+    font-family: 'DM Serif Display', Georgia, serif;
+    font-size: clamp(20px, 2.4vw, 26px);
+    line-height: 1.45;
+    color: var(--ink);
+    margin: 0 0 24px;
+  }
+  .positioning-callout .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .positioning-callout .tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    padding: 5px 10px;
+    border-radius: 4px;
+    background: var(--paper-2);
+    color: var(--ink-2);
+  }
+
+  /* ---------- Personas ---------- */
+  .persona-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 16px;
+  }
+  .persona {
+    background: white;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 22px 22px 20px;
+    transition: all 0.2s;
+  }
+  .persona:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.06); }
+  .persona .persona-icon {
+    width: 38px; height: 38px;
+    border-radius: 10px;
+    background: var(--primary-soft);
+    color: var(--primary);
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 14px;
+  }
+  .persona h3 {
+    font-family: 'DM Serif Display', Georgia, serif;
+    font-weight: 400;
+    font-size: 19px;
+    margin: 0 0 4px;
+  }
+  .persona .who {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    margin-bottom: 10px;
+    letter-spacing: 0.05em;
+  }
+  .persona .pain {
+    font-size: 13.5px;
+    color: var(--ink-2);
+    line-height: 1.55;
+    margin: 0 0 10px;
+  }
+  .persona .quote {
+    font-size: 13px;
+    color: var(--primary);
+    font-style: italic;
+    border-top: 1px dashed var(--line);
+    padding-top: 10px;
+    margin: 0;
+  }
+
+  /* ---------- Three Values ---------- */
+  .values-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+  }
+  .value {
+    background: white;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 28px;
+  }
+  .value .v-num {
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--muted);
+    font-size: 12px;
+    letter-spacing: 0.1em;
+  }
+  .value .v-icon {
+    width: 44px; height: 44px;
+    border-radius: 12px;
+    margin: 8px 0 16px;
+  }
+  .value.v1 .v-icon { background: var(--primary-soft); color: var(--primary); }
+  .value.v2 .v-icon { background: var(--accent-2-soft); color: var(--accent-2); }
+  .value.v3 .v-icon { background: var(--accent-3-soft); color: var(--accent-3); }
+  .value h3 {
+    font-family: 'DM Serif Display', Georgia, serif;
+    font-weight: 400;
+    font-size: 22px;
+    margin: 0 0 8px;
+  }
+  .value .v-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    margin-bottom: 12px;
+  }
+  .value p {
+    font-size: 14px;
+    color: var(--ink-2);
+    margin: 0 0 14px;
+  }
+  .value ul {
+    list-style: none;
+    padding: 0;
+    margin: 12px 0 0;
+  }
+  .value ul li {
+    font-size: 13.5px;
+    color: var(--ink-2);
+    padding: 4px 0 4px 18px;
+    position: relative;
+  }
+  .value ul li::before {
+    content: "";
+    position: absolute;
+    left: 4px; top: 12px;
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: currentColor;
+    opacity: 0.45;
+  }
+
+  /* ---------- User Stories (Scenario) ---------- */
+  .story {
+    background: white;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    margin-bottom: 20px;
+    overflow: hidden;
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+  @media (min-width: 900px) {
+    .story { grid-template-columns: 1.1fr 1fr; }
+  }
+  .story-text {
+    padding: 32px 32px 28px;
+  }
+  .story-text .story-meta {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+  }
+  .story-text .story-num {
+    width: 26px; height: 26px;
+    border-radius: 8px;
+    background: var(--primary-soft);
+    color: var(--primary);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 600;
+  }
+  .story-text h3 {
+    font-family: 'DM Serif Display', Georgia, serif;
+    font-weight: 400;
+    font-size: 22px;
+    margin: 0 0 14px;
+    line-height: 1.25;
+  }
+  .story-text .narrative {
+    font-size: 14.5px;
+    color: var(--ink-2);
+    line-height: 1.65;
+    margin-bottom: 16px;
+  }
+  .story-text .moment {
+    background: var(--paper-2);
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-size: 13px;
+    color: var(--ink);
+    border-left: 3px solid var(--primary);
+  }
+  .story-text .moment strong { color: var(--primary); margin-right: 6px; }
+
+  .story-mock {
+    background: linear-gradient(180deg, #f0ebe1, #e9e3d6);
+    padding: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-top: 1px solid var(--line);
+  }
+  @media (min-width: 900px) {
+    .story-mock {
+      border-top: none;
+      border-left: 1px solid var(--line);
+    }
+  }
+
+  /* ---------- Don't list ---------- */
+  .dont-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 12px;
+  }
+  .dont {
+    background: var(--danger-soft);
+    border: 1px solid rgba(176, 99, 103, 0.20);
+    border-radius: var(--radius);
+    padding: 18px 20px;
+  }
+  .dont .dont-x {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--danger);
+    letter-spacing: 0.1em;
+    margin-bottom: 6px;
+  }
+  .dont h4 {
+    font-family: 'DM Serif Display', Georgia, serif;
+    font-weight: 400;
+    font-size: 17px;
+    margin: 0 0 6px;
+    color: var(--ink);
+  }
+  .dont p {
+    font-size: 13px;
+    color: var(--ink-2);
+    margin: 0;
+    line-height: 1.55;
+  }
+
+  /* ---------- Roadmap ---------- */
+  .roadmap {
+    position: relative;
+    padding-left: 28px;
+  }
+  .roadmap::before {
+    content: "";
+    position: absolute;
+    left: 8px; top: 6px; bottom: 6px;
+    width: 2px;
+    background: linear-gradient(180deg, var(--primary), var(--accent-2), var(--accent-3));
+    opacity: 0.35;
+  }
+  .phase {
+    position: relative;
+    padding: 0 0 32px;
+  }
+  .phase::before {
+    content: "";
+    position: absolute;
+    left: -28px; top: 4px;
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: white;
+    border: 3px solid var(--phase-color, var(--primary));
+  }
+  .phase .phase-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--phase-color, var(--primary));
+    background: var(--phase-bg, var(--primary-soft));
+    border: 1px solid var(--phase-border, var(--primary-line));
+    padding: 4px 10px;
+    border-radius: 4px;
+    margin-bottom: 8px;
+    letter-spacing: 0.08em;
+  }
+  .phase h3 {
+    font-family: 'DM Serif Display', Georgia, serif;
+    font-weight: 400;
+    font-size: 22px;
+    margin: 0 0 8px;
+  }
+  .phase .phase-time {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 12px;
+  }
+  .phase ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .phase ul li {
+    font-size: 14px;
+    color: var(--ink-2);
+    padding: 6px 0 6px 22px;
+    position: relative;
+  }
+  .phase ul li::before {
+    content: "→";
+    position: absolute;
+    left: 0; top: 6px;
+    color: var(--phase-color, var(--primary));
+    font-weight: 600;
+  }
+  .phase .phase-deliverable {
+    background: white;
+    border: 1px dashed var(--line);
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin-top: 14px;
+    font-size: 13px;
+    color: var(--ink-2);
+  }
+  .phase .phase-deliverable strong { color: var(--ink); margin-right: 4px; }
+
+  /* ---------- Metrics ---------- */
+  .metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+  }
+  .metric {
+    background: white;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 22px;
+    text-align: left;
+  }
+  .metric .m-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    margin-bottom: 10px;
+  }
+  .metric .m-value {
+    font-family: 'DM Serif Display', Georgia, serif;
+    font-size: 36px;
+    line-height: 1;
+    color: var(--ink);
+    margin-bottom: 4px;
+  }
+  .metric .m-value .unit {
+    font-family: 'Outfit', sans-serif;
+    font-size: 14px;
+    color: var(--muted);
+    margin-left: 4px;
+  }
+  .metric .m-desc {
+    font-size: 13px;
+    color: var(--ink-2);
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  /* ---------- Risks ---------- */
+  .risks {
+    background: white;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 4px 0;
+  }
+  .risk {
+    display: grid;
+    grid-template-columns: minmax(180px, 1fr) 1fr;
+    gap: 28px;
+    padding: 20px 28px;
+    border-bottom: 1px dashed var(--line);
+  }
+  .risk:last-child { border-bottom: none; }
+  @media (max-width: 600px) {
+    .risk { grid-template-columns: 1fr; gap: 8px; }
+  }
+  .risk h4 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--danger);
+    margin: 0 0 6px;
+    letter-spacing: 0.05em;
+  }
+  .risk .risk-meta {
+    font-size: 12px;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .risk p {
+    font-size: 14px;
+    color: var(--ink-2);
+    margin: 0;
+    line-height: 1.6;
+  }
+  .risk p strong { color: var(--ink); }
+
+  /* ---------- Footer ---------- */
+  footer {
+    margin-top: 96px;
+    padding-top: 32px;
+    border-top: 1px solid var(--line);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  /* Anti-slop: smooth page anchor nav */
+  .sec-anchor { scroll-margin-top: 24px; }
+</style>
+</head>
+<body>
+<main class="container">
+
+  <!-- ============ HERO ============ -->
+  <header class="hero">
+    <span class="eyebrow">PRD · v2.0 · 公开版（A 尺度）</span>
+    <h1>用不过期 <span class="accent">.</span> <br/>让家里每一件有保质期的东西<br/>都被看见、被记住、被用完。</h1>
+    <p class="sub">一份给「朋友圈 / 微信群试用」阶段的最小产品规划。讲清楚做什么、不做什么、按什么节奏做。</p>
+    <dl class="meta">
+      <dt>author</dt><dd>Mavis (产品/创意)</dd>
+      <dt>owner</dt><dd>jose (前端 + 全栈)</dd>
+      <dt>scope</dt><dd>朋友圈 + 微信群试用</dd>
+      <dt>version</dt><dd>v2.0</dd>
+      <dt>date</dt><dd>2026.07</dd>
+    </dl>
+  </header>
+
+  <!-- ============ 1. 一句话定位 ============ -->
+  <section class="sec-anchor" id="positioning">
+    <div class="sec-num">01 / POSITIONING</div>
+    <h2>一句话定位</h2>
+    <p class="lede">把这个 App 是干嘛的、为谁、怎么赢，浓缩成一句话。</p>
+    <div class="positioning-callout">
+      <p>用不过期是微信里的<em>家庭过期管家</em>——记下家里食材/药品/化妆品的开瓶与到期时间，每天推送「该用/将过期」清单，让一家人都看得见、记得住、用得完。</p>
+      <div class="tags">
+        <span class="tag">#痛点&nbsp;记不住开瓶日期</span>
+        <span class="tag">#痛点&nbsp;过期才知道</span>
+        <span class="tag">#解法&nbsp;家人共享 + 自动推送</span>
+        <span class="tag">#抓手&nbsp;微信生态独家</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 2. 用户画像 ============ -->
+  <section class="sec-anchor" id="personas">
+    <div class="sec-num">02 / PERSONAS</div>
+    <h2>谁会用这个 App</h2>
+    <p class="lede">四类核心用户。她们都在被"过期"这件事困扰，但痛点不同，需求也不同——所有功能取舍都要回到她们。</p>
+    <div class="persona-grid">
+
+      <article class="persona">
+        <div class="persona-icon">
+          <!-- family icon -->
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/><circle cx="17" cy="7" r="3"/><path d="M21 21v-2a3 3 0 0 0-3-3h-1"/></svg>
+        </div>
+        <h3>主妇 / 有娃家庭</h3>
+        <div class="who">30-40 岁 · 城里 · 每周采购</div>
+        <p class="pain">冰箱里囤的一堆食材，分不清哪袋肉先该化、哪瓶酱开了多久。偶尔扔一盒坏掉的酸奶，心疼。</p>
+        <p class="quote">"下次再买要写日期，结果就是不会写。"</p>
+      </article>
+
+      <article class="persona">
+        <div class="persona-icon" style="background:var(--accent-2-soft);color:var(--accent-2);">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        </div>
+        <h3>健身带饭党</h3>
+        <div class="who">25-32 岁 · 男/女 · 每周备餐 5 天</div>
+        <p class="pain">周备餐 5 天盒饭，第 4 天的鸡胸常常闻起来不对，但不敢确定。调料买了大瓶，开封后用了一周就忘了。</p>
+        <p class="quote">"我做饭够讲究了，结果被调料背刺。"</p>
+      </article>
+
+      <article class="persona">
+        <div class="persona-icon" style="background:var(--accent-3-soft);color:var(--accent-3);">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 2v6L4 18a2 2 0 0 0 2 3h12a2 2 0 0 0 2-3l-5-10V2"/><path d="M9 2h6"/></svg>
+        </div>
+        <h3>颜值博主 / 收纳控</h3>
+        <div class="who">24-30 岁 · 化妆品多 · 注重「用得讲究」</div>
+        <p class="pain">化妆台上 30+ 瓶瓶罐罐，每瓶上印的 12M/6M 一样看不懂谁先开。想知道「这瓶粉底是不是过期了」。</p>
+        <p class="quote">"我不想扔错——但更不想用过期的。"</p>
+      </article>
+
+      <article class="persona">
+        <div class="persona-icon" style="background:rgba(176,99,103,0.10);color:var(--danger);">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.29 1.51 4.04 3 5.5l7 7Z"/></svg>
+        </div>
+        <h3>慢病老人子女</h3>
+        <div class="who">28-35 岁 · 异地 · 父母吃药多</div>
+        <p class="pain">爸妈一抽屉的药，谁开过哪盒、还剩多少、哪天过期，子女心里没数。每次回去清药箱都要扔一袋。</p>
+        <p class="quote">"我在杭州，爸妈在老家，药的'有效期'只有他们记得住。"</p>
+      </article>
+
+    </div>
+  </section>
+
+  <!-- ============ 3. 三大核心价值 ============ -->
+  <section class="sec-anchor" id="values">
+    <div class="sec-num">03 / CORE VALUES</div>
+    <h2>三大核心价值</h2>
+    <p class="lede">产品只服务三件事。所有功能都要回到这三件上，否则不做。</p>
+    <div class="values-grid">
+
+      <article class="value v1">
+        <div class="v-num">/ 01</div>
+        <div class="v-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </div>
+        <h3>少操心</h3>
+        <div class="v-tag">REMEMBER&nbsp;FOR&nbsp;YOU</div>
+        <p>录入一次，到期自动推。用订阅消息每天两个时段送达，让用户不用打开 App 也能看见「该处理的 3 件事」。</p>
+        <ul>
+          <li>早 9 点推「今天/明天过期」</li>
+          <li>晚 8 点推「第二天即将过期」</li>
+          <li>超 7 天未打开时主动提醒</li>
+        </ul>
+      </article>
+
+      <article class="value v2">
+        <div class="v-num">/ 02</div>
+        <div class="v-icon" style="background:rgba(47,111,94,0.10);color:var(--accent-2);">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 4 4 5-5"/></svg>
+        </div>
+        <h3>少浪费</h3>
+        <div class="v-tag">TRACK&nbsp;WHAT&nbsp;YOU&nbsp;SAVE</div>
+        <p>把每一次扔掉都变成可看见的数据。一年下来知道「少扔了多少、节省了多少钱」，把习惯变成成就感。</p>
+        <ul>
+          <li>本月扔掉 N 件 · 节省 ¥X</li>
+          <li>分类浪费排行 · 高频品类</li>
+          <li>三年累计环保价值</li>
+        </ul>
+      </article>
+
+      <article class="value v3">
+        <div class="v-num">/ 03</div>
+        <div class="v-icon" style="background:rgba(93,107,140,0.10);color:var(--accent-3);">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+        </div>
+        <h3>好分享</h3>
+        <div class="v-tag">SHARE&nbsp;THE&nbsp;HABIT</div>
+        <p>微信生态独家优势——家庭成员共享一份清单，朋友圈分享变成「我家的精致生活」而不是「扔了多少」。</p>
+        <ul>
+          <li>家庭组（最多 5 人）实时同步</li>
+          <li>周/月报海报 · 一键发朋友圈</li>
+          <li>邀请得奖励</li>
+        </ul>
+      </article>
+
+    </div>
+  </section>
+
+  <!-- ============ 4. 4 个核心场景剧本 ============ -->
+  <section class="sec-anchor" id="stories">
+    <div class="sec-num">04 / USER STORIES</div>
+    <h2>四个核心场景剧本</h2>
+    <p class="lede">不是「功能有哪些」，而是「用户在什么时候、用几分钟、解决什么问题」。这是 PRD 最关键的一节——所有功能取舍都要回到这里。</p>
+
+    <!-- Story A -->
+    <article class="story">
+      <div class="story-text">
+        <div class="story-meta"><span class="story-num">A</span><span>周末 10:00 · 主妇/有娃家庭</span></div>
+        <h3>周末大采购归来，1 分钟录完 8 件</h3>
+        <p class="narrative">她和家人刚从超市回来，购物袋堆在厨房台面上。她打开用不过期，按住相机按钮，从上往下扫一遍——冰箱贴、牛奶盒、洗洁精、酸奶、面包、酱油一掠而过。系统识别 8 个，弹出：「酸奶（巴氏奶 7 天）、纯牛奶（常温 180 天）、面包（已烘焙 3 天）…」她核对了 2 个改了一下日期，点全部添加。</p>
+        <div class="moment"><strong>用户感知：</strong>之前像做作业；现在像「拍个快手」。</div>
+      </div>
+      <div class="story-mock">
+        <!-- Mock: 拍照批量录入 -->
+        <svg width="240" height="380" viewBox="0 0 240 380" xmlns="http://www.w3.org/2000/svg">
+          <!-- phone body -->
+          <rect x="0" y="0" width="240" height="380" rx="32" fill="#14171e"/>
+          <rect x="8" y="8" width="224" height="364" rx="26" fill="#f7f5f0"/>
+          <!-- status bar -->
+          <text x="20" y="30" font-family="JetBrains Mono" font-size="9" fill="#14171e">9:42</text>
+          <text x="190" y="30" font-family="JetBrains Mono" font-size="9" fill="#14171e">●●●●● 5G</text>
+          <!-- header -->
+          <text x="20" y="60" font-family="DM Serif Display" font-size="20" fill="#14171e">用不过期</text>
+          <text x="20" y="76" font-family="Outfit" font-size="9" fill="#7c7a72">拍一下，自动识别保质期</text>
+          <!-- camera frame -->
+          <rect x="16" y="90" width="208" height="160" rx="10" fill="#14171e"/>
+          <rect x="16" y="90" width="208" height="160" rx="10" fill="url(#g1)"/>
+          <defs><linearGradient id="g1" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#3a4256" stop-opacity="0.4"/><stop offset="1" stop-color="#14171e" stop-opacity="0.9"/></linearGradient></defs>
+          <!-- camera content overlays -->
+          <text x="120" y="160" font-family="Outfit" font-size="11" fill="white" text-anchor="middle" opacity="0.85">识别中 3 / 8</text>
+          <text x="120" y="180" font-family="JetBrains Mono" font-size="9" fill="#c97b3f" text-anchor="middle">○</text>
+          <!-- bounding boxes -->
+          <rect x="40" y="105" width="50" height="42" rx="3" fill="none" stroke="#c97b3f" stroke-width="1.5" opacity="0.9"/>
+          <rect x="100" y="118" width="58" height="32" rx="3" fill="none" stroke="#c97b3f" stroke-width="1.5" opacity="0.9"/>
+          <rect x="170" y="130" width="40" height="36" rx="3" fill="none" stroke="#c97b3f" stroke-width="1.5" opacity="0.9"/>
+          <!-- detected list -->
+          <rect x="16" y="266" width="208" height="100" rx="10" fill="white" stroke="#e9e3d6"/>
+          <text x="28" y="284" font-family="Outfit" font-size="10" font-weight="600" fill="#14171e">识别结果 · 8 件</text>
+          <text x="28" y="304" font-family="Outfit" font-size="9" fill="#3a4256">· 巴氏酸奶 250ml · 7 天</text>
+          <text x="28" y="320" font-family="Outfit" font-size="9" fill="#3a4256">· 常温牛奶 1L · 180 天</text>
+          <text x="28" y="336" font-family="Outfit" font-size="9" fill="#3a4256">· 全麦面包 · 已 3 天 + 2 天</text>
+          <text x="28" y="352" font-family="Outfit" font-size="9" fill="#7c7a72">+5 件已隐藏</text>
+          <!-- bottom button -->
+          <rect x="36" y="328" width="168" height="30" rx="15" fill="#c97b3f"/>
+          <text x="120" y="348" font-family="Outfit" font-size="11" font-weight="600" fill="white" text-anchor="middle">全部添加 (8)</text>
+        </svg>
+      </div>
+    </article>
+
+    <!-- Story B -->
+    <article class="story">
+      <div class="story-text">
+        <div class="story-meta"><span class="story-num">B</span><span>工作日 09:00 · 订阅消息推送</span></div>
+        <h3>早 9 点的推送，让她一眼看见「今天的事」</h3>
+        <p class="narrative">她正在地铁上，手机弹出用不过期的订阅消息：「今天过期 2 件、明天临期 3 件」。她点开小程序直接进入首页，顶部横幅清晰标红：「2 件已过期 · 请处理」。她下拉就是那 5 件事物的清单，每件都已经按紧急度排好序——面包今天到期、隔夜菜今天到期、酸奶明天到期、感冒药后天…</p>
+        <div class="moment"><strong>用户感知：</strong>不用记日子，到日子自然会找你。</div>
+      </div>
+      <div class="story-mock">
+        <!-- Mock: 推送 + 详情 -->
+        <svg width="240" height="380" viewBox="0 0 240 380" xmlns="http://www.w3.org/2000/svg">
+          <rect x="0" y="0" width="240" height="380" rx="32" fill="#14171e"/>
+          <rect x="8" y="8" width="224" height="364" rx="26" fill="#f7f5f0"/>
+          <!-- lock screen status -->
+          <text x="20" y="42" font-family="Outfit" font-size="9" fill="#14171e">9:00 AM</text>
+          <text x="20" y="60" font-family="DM Serif Display" font-size="26" fill="#14171e">Sunday</text>
+          <!-- notification card -->
+          <rect x="14" y="86" width="212" height="80" rx="14" fill="white" stroke="#e9e3d6"/>
+          <circle cx="32" cy="106" r="10" fill="#c97b3f"/>
+          <text x="32" y="110" font-family="Outfit" font-size="11" font-weight="700" fill="white" text-anchor="middle">Y</text>
+          <text x="50" y="110" font-family="Outfit" font-size="9" font-weight="600" fill="#14171e">用不过期</text>
+          <text x="208" y="110" font-family="JetBrains Mono" font-size="8" fill="#7c7a72" text-anchor="end">now</text>
+          <text x="24" y="132" font-family="Outfit" font-size="10" font-weight="600" fill="#b06367">今天过期 2 件 · 临期 3 件</text>
+          <text x="24" y="148" font-family="Outfit" font-size="9" fill="#3a4256">全麦面包（已 5 天） · 隔夜菜（今 7 日）</text>
+          <text x="24" y="160" font-family="Outfit" font-size="9" fill="#3a4256">酸奶（剩 1 天）· 感冒药 · 鸡蛋</text>
+          <!-- app page -->
+          <rect x="14" y="186" width="212" height="170" rx="10" fill="white" stroke="#e9e3d6"/>
+          <text x="24" y="208" font-family="DM Serif Display" font-size="14" fill="#14171e">用不过期</text>
+          <!-- alert banner -->
+          <rect x="20" y="220" width="200" height="28" rx="6" fill="#fcebe9"/>
+          <text x="32" y="238" font-family="Outfit" font-size="10" font-weight="600" fill="#b06367">● 已过期 2 件 · 立即处理</text>
+          <!-- list -->
+          <text x="24" y="270" font-family="Outfit" font-size="10" font-weight="600" fill="#14171e">全麦面包</text>
+          <circle cx="208" cy="266" r="4" fill="#b06367"/>
+          <text x="180" y="270" font-family="JetBrains Mono" font-size="9" fill="#b06367">剩 0 天</text>
+          <text x="24" y="290" font-family="Outfit" font-size="10" font-weight="600" fill="#14171e">隔夜剩菜</text>
+          <circle cx="208" cy="286" r="4" fill="#b06367"/>
+          <text x="180" y="290" font-family="JetBrains Mono" font-size="9" fill="#b06367">剩 0 天</text>
+          <text x="24" y="310" font-family="Outfit" font-size="10" fill="#3a4256">巴氏酸奶</text>
+          <circle cx="208" cy="306" r="4" fill="#c97b3f"/>
+          <text x="180" y="310" font-family="JetBrains Mono" font-size="9" fill="#c97b3f">剩 1 天</text>
+          <text x="24" y="330" font-family="Outfit" font-size="10" fill="#3a4256">复方感冒药</text>
+          <circle cx="208" cy="326" r="4" fill="#c97b3f"/>
+          <text x="180" y="330" font-family="JetBrains Mono" font-size="9" fill="#c97b3f">剩 2 天</text>
+          <!-- home indicator -->
+          <rect x="90" y="362" width="60" height="3" rx="1.5" fill="#14171e" opacity="0.5"/>
+        </svg>
+      </div>
+    </article>
+
+    <!-- Story C -->
+    <article class="story">
+      <div class="story-text">
+        <div class="story-meta"><span class="story-num">C</span><span>月底 20:30 · 数据复盘</span></div>
+        <h3>数据复盘——扔得少了，省得多了</h3>
+        <p class="narrative">月底她习惯性点开「数据统计」页，眼前一亮：本月扔掉 5 件（比上月 -3 件），折合 ¥87 损失，比上个月少浪费 ¥64。最大消耗品类是蔬菜叶和酸奶。她顺手点了「分享海报」，一张写着她名字和我家照片的周报卡片生成了——没炫耀扔了多少，而是写「用不过期一个月，本月没用完清单 -3 件」。</p>
+        <div class="moment"><strong>用户感知：</strong>用的成就，不是消费的羞耻。</div>
+      </div>
+      <div class="story-mock">
+        <!-- Mock: 浪费统计 -->
+        <svg width="240" height="380" viewBox="0 0 240 380" xmlns="http://www.w3.org/2000/svg">
+          <rect x="0" y="0" width="240" height="380" rx="32" fill="#14171e"/>
+          <rect x="8" y="8" width="224" height="364" rx="26" fill="#f7f5f0"/>
+          <text x="20" y="32" font-family="JetBrains Mono" font-size="9" fill="#14171e">9:42</text>
+          <text x="20" y="58" font-family="Outfit" font-size="10" fill="#7c7a72">‹ 数据统计</text>
+          <text x="20" y="78" font-family="DM Serif Display" font-size="18" fill="#14171e">本月好用</text>
+          <!-- big number -->
+          <rect x="14" y="92" width="212" height="68" rx="10" fill="white" stroke="#e9e3d6"/>
+          <text x="24" y="116" font-family="JetBrains Mono" font-size="9" fill="#7c7a72">扔掉 / 节省</text>
+          <text x="24" y="148" font-family="DM Serif Display" font-size="38" fill="#14171e">5<tspan font-family="Outfit" font-size="14" fill="#7c7a72" dx="6">件</tspan> · <tspan fill="#2f6f5e">¥87</tspan><tspan font-family="Outfit" font-size="14" fill="#7c7a72" dx="2">省</tspan></text>
+          <!-- donut chart -->
+          <circle cx="60" cy="220" r="32" fill="white" stroke="#e9e3d6"/>
+          <circle cx="60" cy="220" r="32" fill="none" stroke="#2f6f5e" stroke-width="10" stroke-dasharray="100 200" transform="rotate(-90 60 220)"/>
+          <circle cx="60" cy="220" r="32" fill="none" stroke="#c97b3f" stroke-width="10" stroke-dasharray="60 200" stroke-dashoffset="-100" transform="rotate(-90 60 220)"/>
+          <text x="60" y="218" font-family="DM Serif Display" font-size="14" fill="#14171e" text-anchor="middle">5</text>
+          <text x="60" y="232" font-family="JetBrains Mono" font-size="8" fill="#7c7a72" text-anchor="middle">本月扔</text>
+          <!-- legend -->
+          <circle cx="120" cy="194" r="3" fill="#2f6f5e"/>
+          <text x="130" y="198" font-family="Outfit" font-size="9" fill="#3a4256">蔬菜叶 2 件</text>
+          <circle cx="120" cy="214" r="3" fill="#c97b3f"/>
+          <text x="130" y="218" font-family="Outfit" font-size="9" fill="#3a4256">酸奶 1 件</text>
+          <circle cx="120" cy="234" r="3" fill="#5d6b8c"/>
+          <text x="130" y="238" font-family="Outfit" font-size="9" fill="#3a4256">调料 1 件</text>
+          <circle cx="120" cy="254" r="3" fill="#b06367"/>
+          <text x="130" y="258" font-family="Outfit" font-size="9" fill="#3a4256">其他 1 件</text>
+          <!-- monthly trend -->
+          <rect x="14" y="288" width="212" height="68" rx="10" fill="white" stroke="#e9e3d6"/>
+          <text x="24" y="304" font-family="Outfit" font-size="9" fill="#7c7a72">近 6 月趋势</text>
+          <!-- mini bars -->
+          <rect x="26" y="328" width="18" height="20" rx="2" fill="#e9e3d6"/>
+          <rect x="54" y="316" width="18" height="32" rx="2" fill="#e9e3d6"/>
+          <rect x="82" y="320" width="18" height="28" rx="2" fill="#e9e3d6"/>
+          <rect x="110" y="324" width="18" height="24" rx="2" fill="#e9e3d6"/>
+          <rect x="138" y="334" width="18" height="14" rx="2" fill="#c97b3f" opacity="0.4"/>
+          <rect x="166" y="338" width="18" height="10" rx="2" fill="#2f6f5e"/>
+          <text x="35" y="352" font-family="JetBrains Mono" font-size="7" fill="#7c7a72" text-anchor="middle">1</text>
+          <text x="103" y="352" font-family="JetBrains Mono" font-size="7" fill="#7c7a72" text-anchor="middle">4</text>
+          <text x="175" y="352" font-family="JetBrains Mono" font-size="7" fill="#7c7a72" text-anchor="middle">6</text>
+          <!-- share button -->
+          <rect x="40" y="338" width="160" height="22" rx="11" fill="#c97b3f"/>
+          <text x="120" y="354" font-family="Outfit" font-size="10" font-weight="600" fill="white" text-anchor="middle">生成分享海报 →</text>
+        </svg>
+      </div>
+    </article>
+
+    <!-- Story D -->
+    <article class="story">
+      <div class="story-text">
+        <div class="story-meta"><span class="story-num">D</span><span>异地 / 周日 21:00 · 慢病老人子女</span></div>
+        <h3>女儿在杭州，能看见爸妈家药箱剩下什么</h3>
+        <p class="narrative">周日晚她打开用不过期，看到「爸妈的家」分组里有 7 件物品——其中 1 件感冒药今天过期。她拨个微信电话回家，提示：「妈，那个银黄颗粒今天到期了，别吃了。」；同时左下角显示爸妈今早自己录入的 2 件新品（小米粥糊、降压药）。她叹口气：「比每次回去翻药箱好多了」。</p>
+        <div class="moment"><strong>用户感知：</strong>距离挡不住操心，这 App 是另一种陪伴。</div>
+      </div>
+      <div class="story-mock">
+        <!-- Mock: 家庭共享 -->
+        <svg width="240" height="380" viewBox="0 0 240 380" xmlns="http://www.w3.org/2000/svg">
+          <rect x="0" y="0" width="240" height="380" rx="32" fill="#14171e"/>
+          <rect x="8" y="8" width="224" height="364" rx="26" fill="#f7f5f0"/>
+          <text x="20" y="32" font-family="JetBrains Mono" font-size="9" fill="#14171e">9:42</text>
+          <!-- tab bar -->
+          <text x="20" y="58" font-family="Outfit" font-size="9" fill="#7c7a72">‹ 家人共享</text>
+          <rect x="178" y="46" width="40" height="18" rx="9" fill="#5d6b8c" opacity="0.15"/>
+          <text x="198" y="58" font-family="JetBrains Mono" font-size="8" fill="#5d6b8c" text-anchor="middle">+ 邀请</text>
+          <!-- family card -->
+          <rect x="14" y="74" width="212" height="58" rx="10" fill="white" stroke="#e9e3d6"/>
+          <circle cx="32" cy="92" r="12" fill="#c97b3f"/>
+          <text x="32" y="96" font-family="Outfit" font-size="11" font-weight="600" fill="white" text-anchor="middle">家</text>
+          <text x="50" y="92" font-family="Outfit" font-size="11" font-weight="600" fill="#14171e">爸妈的家</text>
+          <text x="50" y="106" font-family="JetBrains Mono" font-size="8" fill="#7c7a72">3 位成员 · 杭州 ↔ 老家</text>
+          <!-- status alert -->
+          <text x="222" y="118" font-family="JetBrains Mono" font-size="9" fill="#b06367" text-anchor="end">● 1 件过期</text>
+          <!-- item list -->
+          <rect x="14" y="142" width="212" height="32" rx="6" fill="#fcebe9"/>
+          <text x="22" y="156" font-family="Outfit" font-size="10" font-weight="600" fill="#b06367">● 银黄颗粒</text>
+          <text x="22" y="168" font-family="JetBrains Mono" font-size="8" fill="#b06367">今到期 · 妈今早录入</text>
+          <rect x="14" y="180" width="212" height="28" rx="6" fill="white" stroke="#e9e3d6"/>
+          <text x="22" y="196" font-family="Outfit" font-size="10" fill="#14171e">降压药 · 还剩 14 天</text>
+          <text x="120" y="196" font-family="JetBrains Mono" font-size="8" fill="#7c7a72">爸妈</text>
+          <rect x="14" y="212" width="212" height="28" rx="6" fill="white" stroke="#e9e3d6"/>
+          <text x="22" y="228" font-family="Outfit" font-size="10" fill="#14171e">小米粥糊 · 还剩 90 天</text>
+          <text x="120" y="228" font-family="JetBrains Mono" font-size="8" fill="#7c7a72">妈</text>
+          <rect x="14" y="244" width="212" height="28" rx="6" fill="white" stroke="#e9e3d6"/>
+          <text x="22" y="260" font-family="Outfit" font-size="10" fill="#14171e">复方丹参 · 还剩 100 天</text>
+          <text x="120" y="260" font-family="JetBrains Mono" font-size="8" fill="#7c7a72">爸</text>
+          <!-- member avatars -->
+          <rect x="14" y="288" width="212" height="80" rx="10" fill="white" stroke="#e9e3d6"/>
+          <text x="24" y="306" font-family="Outfit" font-size="10" font-weight="600" fill="#14171e">本周都做了什么</text>
+          <circle cx="32" cy="328" r="10" fill="#c97b3f"/>
+          <text x="32" y="332" font-family="Outfit" font-size="9" font-weight="600" fill="white" text-anchor="middle">妈</text>
+          <text x="48" y="332" font-family="Outfit" font-size="9" fill="#3a4256">录 3 件 · 删 1 件</text>
+          <circle cx="32" cy="350" r="10" fill="#5d6b8c"/>
+          <text x="32" y="354" font-family="Outfit" font-size="9" font-weight="600" fill="white" text-anchor="middle">爸</text>
+          <text x="48" y="354" font-family="Outfit" font-size="9" fill="#3a4256">录 1 件</text>
+          <!-- indicator -->
+          <rect x="90" y="362" width="60" height="3" rx="1.5" fill="#14171e" opacity="0.5"/>
+        </svg>
+      </div>
+    </article>
+
+  </section>
+
+  <!-- ============ 5. 不做的事 ============ -->
+  <section class="sec-anchor" id="dont">
+    <div class="sec-num">05 / NON-GOALS</div>
+    <h2>不做的事</h2>
+    <p class="lede">比「做什么」更重要的是「不做什么」。这些事很有诱惑力，但和产品的核心叙事冲突——明确拒绝，团队才不会被不断变化的需求牵着走。</p>
+    <div class="dont-grid">
+      <article class="dont">
+        <div class="dont-x">× 不做</div>
+        <h4>电商导购 / 推荐位</h4>
+        <p>不要因为"流量大了卖货也赚"就接。比价/推荐会让产品从「管家」变成「推销员」——一旦用户怀疑，就会失去对工具的信任。</p>
+      </article>
+      <article class="dont">
+        <div class="dont-x">× 不做</div>
+        <h4>扫码比价 / 商品库</h4>
+        <p>和场景不符。用户用这个 App 是因为「记得住」，不是「买了什么」。比价是另一个产品。</p>
+      </article>
+      <article class="dont">
+        <div class="dont-x">× 不做</div>
+        <h4>购物清单</h4>
+        <p>「没买」不是「没用完」。这是「买」的工具，不是「用完」的工具。同一 App 既记录家里的又记录要买的，记忆负担会爆。</p>
+      </article>
+      <article class="dont">
+        <div class="dont-x">× 不做</div>
+        <h4>商城变现 / 会员订阅（v1.x）</h4>
+        <p>过早商业化会毁口碑。本阶段只验证留存与粘性。如果未来做会员，只对「高级功能」付费（如家庭成员上限解锁），不当「门票」。</p>
+      </article>
+      <article class="dont">
+        <div class="dont-x">× 不做</div>
+        <h4>AI 对话 / 智能助理</h4>
+        <p>塞 LLM 对话会让 App 变重、变慢、变烧 token。这个产品的核心是「少操心」，对话是「多操心」的反义词。</p>
+      </article>
+      <article class="dont">
+        <div class="dont-x">× 不做</div>
+        <h4>跨平台 / 多端同步</h4>
+        <p>在 v1.x 只做微信小程序。APP / 网页 / Mac 是非常后面的事——「专一」才是云函数 + 小程序的优雅之处。</p>
+      </article>
+    </div>
+  </section>
+
+  <!-- ============ 6. 4 阶段路线图 ============ -->
+  <section class="sec-anchor" id="roadmap">
+    <div class="sec-num">06 / ROADMAP</div>
+    <h2>四阶段路线图</h2>
+    <p class="lede">不是「什么时候做完」，而是「每一阶段必须给用户讲清楚一个故事」。PRD 是文档，下面的里程碑是故事弧。</p>
+    <div class="roadmap">
+
+      <article class="phase" style="--phase-color:var(--primary);--phase-bg:var(--primary-soft);--phase-border:var(--primary-line);">
+        <span class="phase-tag">PHASE 0 · 粘性</span>
+        <h3>自家用得起来的工具</h3>
+        <div class="phase-time">本周 ~ 2 周内</div>
+        <ul>
+          <li>自定义模板 · 沉淀用户家的「私人物品清单」</li>
+          <li>浪费统计 + 累计价值 · 让"少浪费"变成可看见的数据</li>
+          <li>家庭 1v1 共享 · 简单支持配偶 / 父母看到</li>
+          <li>订阅消息触发逻辑接通 · 早 9 + 晚 8 自动推送</li>
+        </ul>
+        <div class="phase-deliverable"><strong>交付钩子：</strong>用户连续 7 天主动打开 · 录入物品均值 ≥ 5</div>
+      </article>
+
+      <article class="phase" style="--phase-color:var(--primary);--phase-bg:var(--primary-soft);--phase-border:var(--primary-line);">
+        <span class="phase-tag">PHASE 1 · 拉新</span>
+        <h3>让用户愿意分享</h3>
+        <div class="phase-time">3 ~ 4 周内</div>
+        <ul>
+          <li>分享海报 · 月报 + 周报 + 单卡三种</li>
+          <li>微信群邀请· 一键发出 · 邀请 +1 解锁模板</li>
+          <li>朋友圈话题运营 · 「我家本月少扔几件」模板</li>
+          <li>AI 拍照识别物品 · 拍一个自动填表</li>
+        </ul>
+        <div class="phase-deliverable"><strong>交付钩子：</strong>100 个种子用户 · 分享率 ≥ 8%</div>
+      </article>
+
+      <article class="phase" style="--phase-color:var(--accent-2);--phase-bg:var(--accent-2-soft);--phase-border:rgba(47,111,94,0.30);">
+        <span class="phase-tag">PHASE 2 · 深度</span>
+        <h3>家庭场景全立住</h3>
+        <div class="phase-time">5 ~ 8 周内</div>
+        <ul>
+          <li>多人家庭组（最多 5 人）· 实时同步 + 权限分配</li>
+          <li>物品相册 · 每件物品可拍历史照片</li>
+          <li>按场景的包装 · 冰箱 / 药箱 / 化妆台</li>
+          <li>数据导出 · CSV / PDF / 微信文件</li>
+        </ul>
+        <div class="phase-deliverable"><strong>交付钩子：</strong>30% 用户启用家庭组 · 5% 周活跃 ≥ 4 次</div>
+      </article>
+
+      <article class="phase" style="--phase-color:var(--accent-3);--phase-bg:var(--accent-3-soft);--phase-border:rgba(93,107,140,0.30);">
+        <span class="phase-tag">PHASE 3 · 商业化预留</span>
+        <h3>变现路径的预留</h3>
+        <div class="phase-time">9 ~ 12 周内（不下场，只测试）</div>
+        <ul>
+          <li>家庭成员 3 人以上 → 付费解锁（10 元/月）</li>
+          <li>B2B 轻量版 · 药店效期 / 超市临期数据看板</li>
+          <li>实物广告位 · 仅放在「即将过期列表底部」且明确标注</li>
+          <li>开放 API · 让第三方（诊所、营养师）合作</li>
+        </ul>
+        <div class="phase-deliverable"><strong>交付钩子：</strong>付费转化率 ≥ 2% · B2B 至少 1 个测试客户</div>
+      </article>
+
+    </div>
+  </section>
+
+  <!-- ============ 7. 北极星指标 ============ -->
+  <section class="sec-anchor" id="metrics">
+    <div class="sec-num">07 / METRICS</div>
+    <h2>北极星 & 仪表盘</h2>
+    <p class="lede">不能量化的目标都是空话。每个指标都要能回答「产品到底有没有用」。</p>
+    <div class="metrics-grid">
+
+      <article class="metric">
+        <div class="m-label">// NORTH STAR</div>
+        <div class="m-value">每周活跃物品<span class="unit">/ 用户</span></div>
+        <p class="m-desc">最核心指标——「用户持续有用过期的物品被记录」。所有其他指标都围绕它运转。</p>
+      </article>
+
+      <article class="metric">
+        <div class="m-label">// RETENTION</div>
+        <div class="m-value">7 日留存<span class="unit">%</span></div>
+        <p class="m-desc">7 天后还有多少用户回到 App。这是「有没有用起来」的硬指标——推 v1.2 看 ≥35%。</p>
+      </article>
+
+      <article class="metric">
+        <div class="m-label">// ACTIVATION</div>
+        <div class="m-value">D3 录入 ≥ 3</div>
+        <p class="m-desc">前 3 天录到 3 件以上 → 用户被「护城河」勾住了。这批用户长期留存是别人的 3 倍。</p>
+      </article>
+
+      <article class="metric">
+        <div class="m-label">// GROWTH</div>
+        <div class="m-value">K 系数<span class="unit">/ 邀请</span></div>
+        <p class="m-desc">每用户带来多少新用户。家庭共享 + 分享海报双引擎，目标 0.4 起步 → 半年提到 1.0。</p>
+      </article>
+
+      <article class="metric">
+        <div class="m-label">// MONETIZATION 信号</div>
+        <div class="m-value">家庭组启用率<span class="unit">%</span></div>
+        <p class="m-desc">v2.0 是否需要「会员解锁多成员」取决于这个数字。30%+ 才有付费转化基础。</p>
+      </article>
+
+      <article class="metric">
+        <div class="m-label">// QUALITY</div>
+        <div class="m-value">订阅接受率<span class="unit">%</span></div>
+        <p class="m-desc">订阅消息点了「总是保持」的比例。低于 60% 说明推送内容质量或时机有问题。</p>
+      </article>
+
+    </div>
+  </section>
+
+  <!-- ============ 8. 风险 & 备案 ============ -->
+  <section class="sec-anchor" id="risks">
+    <div class="sec-num">08 / RISKS</div>
+    <h2>风险点 & 应对</h2>
+    <p class="lede">每个 MVP 都有"会死的地方"。先列出来，就能在做的过程中盯住。</p>
+    <div class="risks">
+
+      <article class="risk">
+        <div>
+          <h4>R1. 录入摩擦</h4>
+          <div class="risk-meta">IMPACT&nbsp;·&nbsp;CRITICAL</div>
+        </div>
+        <p><strong>症状：</strong>D1 流失 70%。<strong>原因：</strong>录 1 件要 30 秒，比扔掉还贵。<br/><strong>应对：</strong>① 模板默认填全（用户零输入）；② OCR 拍包装直接出保质期；③ 第一次进入引导录 1 件（最常见：酸奶/牛奶）。</p>
+      </article>
+
+      <article class="risk">
+        <div>
+          <h4>R2. 推送疲劳</h4>
+          <div class="risk-meta">IMPACT&nbsp;·&nbsp;HIGH</div>
+        </div>
+        <p><strong>症状：</strong>订阅接受率持续下降，用户关掉订阅消息。<br/><strong>应对：</strong>① 默认低频（一日一推）+ 紧急项才加推；② 提供「今日无过期」卡而非不发；③ 用户可调阈值。</p>
+      </article>
+
+      <article class="risk">
+        <div>
+          <h4>R3. 家庭共享冲突</h4>
+          <div class="risk-meta">IMPACT&nbsp;·&nbsp;HIGH</div>
+        </div>
+        <p><strong>症状：</strong>妈妈删了女儿录的物品，抱怨 "管太多"。<br/><strong>应对：</strong>① 物品所有权清晰可见（「谁录的」）；② 删除有「撤销」和同步通知；③ 权限分级（孩子成员只读）。</p>
+      </article>
+
+      <article class="risk">
+        <div>
+          <h4>R4. AI 识别误判</h4>
+          <div class="risk-meta">IMPACT&nbsp;·&nbsp;MEDIUM</div>
+        </div>
+        <p><strong>症状：</strong>用户扫一个洗发水瓶，识别成「酸奶 3 天」。<br/><strong>应对：</strong>① 模型结果只做「建议」，必须用户二次确认；② 失败回退到 OCR 文本流；③ 累计错例反馈到云函数训练。</p>
+      </article>
+
+      <article class="risk">
+        <div>
+          <h4>R5. 增长停滞</h4>
+          <div class="risk-meta">IMPACT&nbsp;·&nbsp;MEDIUM</div>
+        </div>
+        <p><strong>症状：</strong>100 种子后 K 系数卡在 0.2。<br/><strong>应对：</strong>① 朋友圈/群话题运营，由 PM 亲自带；② 分享海报优化到「不发就亏」；③ 启动「邀请解锁模板」机制（白嫖心理）。</p>
+      </article>
+
+      <article class="risk">
+        <div>
+          <h4>R6. 隐私顾虑</h4>
+          <div class="risk-meta">IMPACT&nbsp;·&nbsp;MEDIUM</div>
+        </div>
+        <p><strong>症状：</strong>家庭组分享时用户拒绝。<br/><strong>应对：</strong>① 隐私政策写得通俗，不堆法条；② 物品数据完全本地存储，云端只同步；③ 提供「单件物品单独权限」。</p>
+      </article>
+
+    </div>
+  </section>
+
+  <footer>
+    <div>用不过期 PRD v2.0 · 公开版 · 2026.07 · 进度自由裁量</div>
+    <div>Mavis × jose · time-lab</div>
+  </footer>
+
+</main>
+</body>
+</html>

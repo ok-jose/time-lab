@@ -1,0 +1,9 @@
+{
+  "name": "httpRequest",
+  "version": "1.0.0",
+  "description": "通用 HTTPS 代理云函数 —— 让其他云函数能调外网 API",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "latest"
+  }
+}

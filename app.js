@@ -58,6 +58,20 @@ App({
     return item;
   },
 
+  /** 给物品补齐实时派生字段（状态/剩余天数每天都会变，不能只依赖存储里的旧值） */
+  normalizeItem(item) {
+    const util = require('./utils/util');
+    const daysLeft = util.calcDaysLeft(item.expireDate);
+    const category = item.category || '其他';
+    return {
+      ...item,
+      category,
+      icon: item.icon || util.getCategoryIcon(category),
+      daysLeft,
+      status: util.getStatus(daysLeft, item.used)
+    };
+  },
+
   /** 更新物品 */
   updateItem(id, updates) {
     const idx = this.globalData.items.findIndex(i => i.id === id);
@@ -76,7 +90,7 @@ App({
 
   /** 获取物品列表 */
   getItems(filter) {
-    const items = this.globalData.items;
+    const items = this.globalData.items.map(i => this.normalizeItem(i));
     const allowed = ['safe', 'warning', 'danger', 'used'];
     if (!filter || filter === 'all') return items;
     if (allowed.indexOf(filter) === -1) return items;
@@ -85,25 +99,15 @@ App({
 
   /** 获取过期统计 */
   getAlertStats() {
-    const items = this.globalData.items;
+    const items = this.globalData.items.map(i => this.normalizeItem(i));
     return {
       warning: items.filter(i => i.status === 'warning').length,
       danger: items.filter(i => i.status === 'danger').length
     };
   },
 
-  /** 订阅提醒消息（纯前端提醒） */
+  /** 兼容老代码：以前这个方法做空 modal 弹窗，现在统一走 utils/reminder.js */
   subscribeReminder() {
-    return new Promise((resolve) => {
-      wx.showModal({
-        title: '提醒设置',
-        content: '本地提醒功能已开启，将在物品过期时在应用内通知您',
-        showCancel: false,
-        success: () => {
-          wx.setStorageSync('reminderSubscribed', true);
-          resolve(true);
-        }
-      });
-    });
+    require('./utils/reminder').enableReminder();
   }
 });

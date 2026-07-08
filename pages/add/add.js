@@ -1,5 +1,6 @@
 const util = require('../../utils/util');
 const cloud = require('../../utils/cloud');
+const ocrUtil = require('../../utils/ocr');
 const app = getApp();
 
 // ============ 批量草稿存储 key ============
@@ -221,6 +222,62 @@ Page({
     return util.autoCalcForm(form, changedField);
   },
 
+  /** 把 chooseMedia 的临时图片尽量转成本地持久文件；失败时回退临时路径 */
+  _persistLocalPhoto(tempPath) {
+    return new Promise((resolve) => {
+      if (!tempPath || typeof wx === 'undefined' || typeof wx.saveFile !== 'function') {
+        resolve(tempPath);
+        return;
+      }
+      wx.saveFile({
+        tempFilePath: tempPath,
+        success: (res) => resolve(res.savedFilePath || tempPath),
+        fail: () => resolve(tempPath)
+      });
+    });
+  },
+
+  /** 批量拍照时，把照片立即写回对应草稿，避免 OCR 成功后丢图片 */
+  _attachPhotoToBatchItem(index, photoPath) {
+    if (index < 0 || index >= this.data.batchItems.length || !photoPath) return;
+    const next = [...this.data.batchItems];
+    const old = next[index] || {};
+    next[index] = {
+      ...old,
+      photoPath,
+      name: old.name === '等待拍照...' ? '' : old.name,
+      source: old.source || 'ocr',
+      needsReview: true
+    };
+    this.setData({ batchItems: next });
+    this._persistDraft(next);
+  },
+
+  /** 用户取消拍照时，删除刚创建的空占位项 */
+  _removePhotoPlaceholderIfNeeded(index) {
+    if (index < 0 || index >= this.data.batchItems.length) return;
+    const item = this.data.batchItems[index];
+    if (item && item.source === 'ocr' && !item.photoPath && (!item.name || item.name === '等待拍照...')) {
+      this.removeBatchItem(index);
+    }
+  },
+
+  _buildScanNote(codeText, info) {
+    return '条码 ' + codeText + (info && info.country ? '（' + info.country + '）' : '');
+  },
+
+  _fillScanIntoForm(codeText, info) {
+    const updates = {};
+    if (!this.data.form.name) {
+      const tail = (info && info.productCode) || codeText.slice(-6);
+      updates['form.name'] = '商品 (' + tail + ')';
+    }
+    if (!this.data.form.note) {
+      updates['form.note'] = this._buildScanNote(codeText, info);
+    }
+    if (Object.keys(updates).length > 0) this.setData(updates);
+  },
+
   /** 把单个 item 反向同步到 form（编辑时） */
   _itemToForm(item) {
     return {
@@ -265,10 +322,11 @@ Page({
 
   /** 📷 拍照批量：进 batch，触发相机，拍完自动 addBatchItem */
   onQuickPhoto() {
-    const item = this.newBatchItem({ name: '等待拍照...' });
+    const pendingIndex = this.data.batchItems.length;
+    const item = this.newBatchItem({ name: '等待拍照...', source: 'ocr', needsReview: true });
     this.pushBatchItem(item);
     this.setData({ phase: 'batch' });
-    this.takeOCRPhoto();
+    this.takeOCRPhoto({ pendingBatchIndex: pendingIndex });
   },
 
   /** 📦 从模板批量：进 batch，但不预填 item，等用户点模板 */
@@ -292,7 +350,7 @@ Page({
   /** 「✓ 添加 N 件」按钮：批量保存 */
   onSaveAll() {
     const valid = this.data.batchItems.filter(it =>
-      (it.name || '').trim() && (it.expireDate || it.limitDays)
+      (it.name || '').trim() && it.name !== '等待拍照...' && (it.expireDate || it.limitDays)
     );
     const invalidCount = this.data.batchItems.length - valid.length;
     if (valid.length === 0) {
@@ -318,16 +376,19 @@ Page({
   _doSaveItems(items) {
     let saved = 0;
     items.forEach(it => {
+      const openDate = it.openDate || util.formatDate(new Date());
+      const limitDays = parseInt(it.limitDays) || 30;
+      const expireDate = it.expireDate || util.calcExpireDate(openDate, limitDays);
       const item = {
         name: (it.name || '').trim(),
         category: it.category || '其他',
         icon: util.getCategoryIcon(it.category || '其他'),
-        openDate: it.openDate || util.formatDate(new Date()),
-        expireDate: it.expireDate || util.calcExpireDate(it.openDate || util.formatDate(new Date()), parseInt(it.limitDays) || 30),
-        limitDays: parseInt(it.limitDays) || 30,
+        openDate,
+        expireDate,
+        limitDays,
         note: it.note || '',
         location: it.location || '',
-        daysLeft: util.calcDaysLeft(it.expireDate),
+        daysLeft: util.calcDaysLeft(expireDate),
         photoPath: it.photoPath || '',
         barCode: it.barCode || ''
       };
@@ -507,7 +568,10 @@ Page({
   //  OCR / 扫码（phase === 'editItem' 时）
   // ============================================================
 
-  async takeOCRPhoto() {
+  async takeOCRPhoto(options = {}) {
+    const pendingBatchIndex = options && typeof options.pendingBatchIndex === 'number'
+      ? options.pendingBatchIndex
+      : -1;
     try {
       const res = await wx.chooseMedia({
         count: 1,
@@ -515,19 +579,19 @@ Page({
         sourceType: ['camera'],
         camera: 'back'
       });
-      const path = res.tempFiles[0].tempFilePath;
+      const tempPath = res.tempFiles[0].tempFilePath;
+      const path = await this._persistLocalPhoto(tempPath);
       this.setData({ ocrImagePath: path, photoPath: path, ocrExtracted: null, ocrFilled: false });
+
+      const batchIndex = pendingBatchIndex >= 0 ? pendingBatchIndex : this.data.batchItems.length - 1;
+      if (this.data.phase === 'batch') {
+        this._attachPhotoToBatchItem(batchIndex, path);
+      }
 
       if (!cloud.isCloudReady()) {
         this.setData({ ocrExtracted: null });
         if (this.data.phase === 'batch') {
-          // batch 模式：标记当前 item 有照片、等用户编辑
-          const i = this.data.batchItems.length - 1;
-          if (i >= 0) {
-            const next = [...this.data.batchItems];
-            next[i] = { ...next[i], photoPath: path, name: next[i].name === '等待拍照...' ? '' : next[i].name };
-            this.setData({ batchItems: next });
-          }
+          wx.showToast({ title: '已保存照片，点击行补充信息', icon: 'none', duration: 1500 });
         }
         return;
       }
@@ -540,15 +604,20 @@ Page({
         wx.showToast({ title: '图片上传失败：' + upRes.reason, icon: 'none' });
         return;
       }
-      const ocrRes = await cloud.ocr(upRes.data.fileID);
+      // 走云函数 ocr（cloud.openapi.ocr.printedText 通用印刷体）
+      const ocrRes = await ocrUtil.ocrByCloudFile(upRes.data.fileID);
       this.setData({ ocrLoading: false });
       if (!ocrRes.ok) {
-        wx.showToast({ title: 'OCR 识别失败：' + (ocrRes.data && ocrRes.data.message || ocrRes.reason), icon: 'none' });
+        wx.showModal({
+          title: 'OCR 识别失败',
+          content: (ocrRes.message || ocrRes.error || '未知错误') + '\n（500次/天免费额度，超额或失败时可手动填日期）',
+          showCancel: false,
+        });
         return;
       }
 
-      const extracted = ocrRes.data.extracted || {};
-      this.setData({ ocrExtracted: extracted });
+      const extracted = ocrRes.extracted || {};
+      this.setData({ ocrExtracted: extracted, ocrRawText: ocrRes.rawText || '' });
       const hits = ['expireDate', 'openDate', 'limitDays', 'productName'].filter(k => extracted[k]);
 
       if (this.data.phase === 'editItem') {
@@ -557,13 +626,20 @@ Page({
       } else if (this.data.phase === 'batch') {
         // batch 模式：识别完直接把字段填进最后一个 item
         if (hits.length > 0) {
-          const i = this.data.batchItems.length - 1;
+          const i = batchIndex;
           if (i >= 0) this._fillOCRIntoBatchItem(i, extracted);
+        } else {
+          wx.showToast({ title: '未识别出日期，点击行手动补充', icon: 'none', duration: 1800 });
         }
       }
     } catch (err) {
-      if (err && err.errMsg && err.errMsg.indexOf('cancel') !== -1) return;
+      this.setData({ ocrLoading: false });
+      if (err && err.errMsg && err.errMsg.indexOf('cancel') !== -1) {
+        this._removePhotoPlaceholderIfNeeded(pendingBatchIndex);
+        return;
+      }
       if (err && err.errMsg && err.errMsg.indexOf('auth deny') !== -1) {
+        this._removePhotoPlaceholderIfNeeded(pendingBatchIndex);
         wx.showModal({
           title: '需要相机权限',
           content: '请在设置中允许小程序使用相机',
@@ -623,30 +699,38 @@ Page({
   async scanCode() {
     try {
       const res = await wx.scanCode({ scanType: ['barCode', 'qrCode'] });
-      const codeText = res.result;
+      const codeText = res.result || '';
       this.setData({ scanCodeText: codeText, scanInfo: null });
 
-      if (!cloud.isCloudReady()) {
-        this.setData({ 'form.note': '条码 ' + codeText });
+      let info = null;
+      if (cloud.isCloudReady()) {
+        this.setData({ scanLoading: true });
+        const r = await cloud.lookupBarcode(codeText);
+        this.setData({ scanLoading: false });
+        if (r.ok) {
+          info = r.data || {};
+          this.setData({ scanInfo: info });
+        }
+      }
+
+      if (this.data.phase === 'batch' && !this.data.isEdit) {
+        const tail = (info && info.productCode) || codeText.slice(-6) || '未命名';
+        const item = this.newBatchItem({
+          name: '商品 (' + tail + ')',
+          note: this._buildScanNote(codeText, info),
+          barCode: codeText,
+          source: 'scan',
+          needsReview: true
+        });
+        this.pushBatchItem(item);
+        wx.showToast({ title: '已加入列表，点击行编辑', icon: 'none', duration: 1500 });
         return;
       }
 
-      this.setData({ scanLoading: true });
-      const r = await cloud.lookupBarcode(codeText);
-      this.setData({ scanLoading: false });
-      if (r.ok) {
-        this.setData({ scanInfo: r.data });
-        // 自动填入 form
-        if (!this.data.form.name) {
-          const tail = r.data.productCode || codeText.slice(-6);
-          this.setData({ 'form.name': '商品 (' + tail + ')' });
-        }
-        if (!this.data.form.note) {
-          this.setData({ 'form.note': '条码 ' + codeText + (r.data.country ? '（' + r.data.country + '）' : '') });
-        }
-        wx.showToast({ title: '已填入条码信息', icon: 'success' });
-      }
+      this._fillScanIntoForm(codeText, info);
+      wx.showToast({ title: info ? '已填入条码信息' : '已填入条码', icon: 'success' });
     } catch (err) {
+      this.setData({ scanLoading: false });
       if (err && err.errMsg && err.errMsg.indexOf('cancel') !== -1) return;
       wx.showToast({ title: '扫码失败，请重试', icon: 'none' });
     }
@@ -657,8 +741,8 @@ Page({
       count: 1,
       mediaType: ['image'],
       sourceType: ['album', 'camera'],
-      success: (res) => {
-        const path = res.tempFiles[0].tempFilePath;
+      success: async (res) => {
+        const path = await this._persistLocalPhoto(res.tempFiles[0].tempFilePath);
         this.setData({ photoPath: path });
       }
     });

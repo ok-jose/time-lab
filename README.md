@@ -159,8 +159,7 @@ MIT License - 详见LICENSE文件
 
 ## 📞 联系
 
-- 邮箱：feedback@timelab.com
-- 项目地址：https://github.com/yourname/time-lab
+- 282923166@qq.com
 
 ---
 
